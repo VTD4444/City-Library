@@ -742,7 +742,6 @@ export default {
       this.loadNotifications();
       this.startNotificationPolling(); // Start polling
     }
-    this.$root.$on("new-notification", this.loadNotifications);
   },
 
   // Cập nhật sau mỗi lần hiển thị trang (sửa phần thiếu này)
@@ -753,8 +752,6 @@ export default {
   beforeUnmount() {
     // Stop polling when component unmounts
     this.stopNotificationPolling();
-    // Xóa event listener khi component unmount
-    this.$root.$off("new-notification", this.loadNotifications);
   },
 
   // Theo dõi thay đổi của route để cập nhật lại thông tin khi cần
