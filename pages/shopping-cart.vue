@@ -280,7 +280,7 @@ export default {
 
         // Gọi API tạo phiếu mượn
         const response = await fetch(
-          "http://26.193.242.15:8000/phieumuons/create",
+          "https://26.193.242.15:8080/phieumuons/create",
           {
             method: "POST",
             headers: {

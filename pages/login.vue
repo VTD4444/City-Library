@@ -128,7 +128,7 @@ export default {
                     };
                     
                     // Gọi API
-                    const response = await fetch('http://26.193.242.15:8000/bandoc/login', {
+                    const response = await fetch('https://26.193.242.15:8080/bandoc/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

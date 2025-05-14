@@ -579,7 +579,7 @@ export default {
       
       if (!silent) this.loading = true;
       try {
-        const response = await fetch(`http://26.193.242.15:8000/thongbao/${this.MaDocGia}`);
+        const response = await fetch(`https://26.193.242.15:8080/thongbao/${this.MaDocGia}`);
         if (!response.ok) {
           throw new Error(`API error! Status: ${response.status}`);
         }
@@ -618,7 +618,7 @@ export default {
       if (notification.TrangThai === "ChuaDoc") {
         try {
           // Existing code to mark as read...
-          const response = await fetch(`http://26.193.242.15:8000/thongbao/xacnhan/${notification.MaThongBao}`, {
+          const response = await fetch(`https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json'
@@ -660,7 +660,7 @@ export default {
       try {
         // Gọi API để đánh dấu tất cả thông báo là đã đọc
         const promises = unreadNotifications.map(notification => 
-          fetch(`http://26.193.242.15:8000/thongbao/xacnhan/${notification.MaThongBao}`, {
+          fetch(`https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json'

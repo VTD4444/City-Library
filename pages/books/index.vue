@@ -227,7 +227,7 @@ export default {
 
         // Gọi API mới với phương thức POST
         const response = await fetch(
-          `http://26.193.242.15:8000/books/search-books/?page=${page}&page_size=12`,
+          `https://26.193.242.15:8080/books/search-books/?page=${page}&page_size=12`,
           {
             method: "POST",
             headers: {

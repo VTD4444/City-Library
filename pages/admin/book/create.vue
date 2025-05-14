@@ -270,7 +270,7 @@ export default {
         };
 
         // Gọi API để tạo sách mới
-        const response = await fetch("http://26.193.242.15:8000/books/create", {
+        const response = await fetch("https://26.193.242.15:8080/books/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

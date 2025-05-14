@@ -97,7 +97,7 @@ export default {
                 return this.book.AnhMinhHoa;
             }
             
-            return `http://26.193.242.15:8000${this.book.AnhMinhHoa}`;
+            return `https://26.193.242.15:8080${this.book.AnhMinhHoa}`;
         }
     }
 }

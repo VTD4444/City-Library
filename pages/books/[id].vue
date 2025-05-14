@@ -220,7 +220,7 @@ export default {
       try {
         // Gọi API để lấy thông tin chi tiết sách
         const response = await fetch(
-          `http://26.193.242.15:8000/books/${this.bookId}`
+          `https://26.193.242.15:8080/books/${this.bookId}`
         );
 
         if (!response.ok) {
@@ -251,7 +251,7 @@ export default {
       }
 
       // Nếu là đường dẫn tương đối, thêm base URL
-      return `http://26.193.242.15:8000${this.book.AnhMinhHoa}`;
+      return `https://26.193.242.15:8080${this.book.AnhMinhHoa}`;
     },
 
     borrowBook() {
@@ -299,7 +299,7 @@ export default {
 
         // Call API to create borrow ticket
         const response = await fetch(
-          "http://26.193.242.15:8000/phieumuons/create",
+          "https://26.193.242.15:8080/phieumuons/create",
           {
             method: "POST",
             headers: {

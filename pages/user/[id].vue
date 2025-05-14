@@ -330,7 +330,7 @@ export default {
 
         // Gọi API cập nhật thông tin
         const response = await fetch(
-          `http://26.193.242.15:8000/bandoc/update_user?user_id=${this.userId}`,
+          `https://26.193.242.15:8080/bandoc/update_user?user_id=${this.userId}`,
           {
             method: "PUT",
             headers: {

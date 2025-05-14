@@ -282,7 +282,7 @@ export default {
 
           // Gọi API đăng ký
           const response = await fetch(
-            'http://26.193.242.15:8000/bandoc/create',
+            'https://26.193.242.15:8080/bandoc/create',
             {
               method: 'POST',
               headers: {

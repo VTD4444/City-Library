@@ -316,7 +316,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://26.193.242.15:8000/books/${this.bookId}`,
+          `https://26.193.242.15:8080/books/${this.bookId}`,
           {
             method: "GET",
             headers: {
@@ -377,7 +377,7 @@ export default {
 
         // Update book
         const response = await fetch(
-          `http://26.193.242.15:8000/books/update/${this.bookId}`,
+          `https://26.193.242.15:8080/books/update/${this.bookId}`,
           {
             method: "PUT",
             headers: {
@@ -401,7 +401,7 @@ export default {
           imageData.append("file", this.imageFile);
 
           const imageResponse = await fetch(
-            `http://26.193.242.15:8000/books/${this.bookId}/upload-image`,
+            `https://26.193.242.15:8080/books/${this.bookId}/upload-image`,
             {
               method: "POST",
               body: imageData,

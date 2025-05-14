@@ -208,7 +208,7 @@ export default {
     async getFamousBooks() {
       this.loadingFamousBooks = true;
       try {
-        const response = await fetch('http://26.193.242.15:8000/books/get_famous_list?page=1&page_size=4', {
+        const response = await fetch('https://26.193.242.15:8080/books/get_famous_list?page=1&page_size=4', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -151,7 +151,7 @@ export default {
 
       try {
         // Make API request to get all genres at once
-        const response = await fetch("http://26.193.242.15:8000/theloai/thongke-theloai", {
+        const response = await fetch("https://26.193.242.15:8080/theloai/thongke-theloai", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -114,7 +114,7 @@ export default {
       this.error = null;
       
       try {
-        const response = await fetch(`http://26.193.242.15:8000/phieumuons/lay1phieumuon/${this.loanId}`);
+        const response = await fetch(`https://26.193.242.15:8080/phieumuons/lay1phieumuon/${this.loanId}`);
         
         if (!response.ok) {
           const errorData = await response.json();

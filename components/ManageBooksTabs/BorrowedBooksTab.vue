@@ -272,7 +272,7 @@ export default {
 
       try {
         // Make API request to get borrowed books
-        const response = await fetch("http://26.193.242.15:8000/chitietphieumuon/searchfilterchitietphieumuon", {
+        const response = await fetch("https://26.193.242.15:8080/chitietphieumuon/searchfilterchitietphieumuon", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -327,7 +327,7 @@ export default {
     async updateStatus(item) {
       try {
         // Make API request to update book borrow status
-        const response = await fetch(`http://26.193.242.15:8000/chitietphieumuon/${item.MaPhieuMuon}`, {
+        const response = await fetch(`https://26.193.242.15:8080/chitietphieumuon/${item.MaPhieuMuon}`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json"

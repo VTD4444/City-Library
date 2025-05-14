@@ -343,7 +343,7 @@ export default {
         };
         
         // Make API request
-        const response = await fetch(`http://26.193.242.15:8000/books/thongke_sach_filter`, {
+        const response = await fetch(`https://26.193.242.15:8080/books/thongke_sach_filter`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -391,13 +391,13 @@ export default {
         if (this.bookDialog.isEdit) {
           // Update existing book
           formData.append("MaSach", this.bookDialog.book.MaSach);
-          response = await fetch(`http://26.193.242.15:8000/books/${this.bookDialog.book.MaSach}`, {
+          response = await fetch(`https://26.193.242.15:8080/books/${this.bookDialog.book.MaSach}`, {
             method: "PUT",
             body: formData,
           });
         } else {
           // Create new book
-          response = await fetch("http://26.193.242.15:8000/books", {
+          response = await fetch("https://26.193.242.15:8080/books", {
             method: "POST",
             body: formData,
           });
@@ -463,7 +463,7 @@ export default {
       this.deleteLoading = true;
       try {
         // Send delete request to API
-        const response = await fetch(`http://26.193.242.15:8000/booksdelete/${this.bookToDelete.MaSach}`, {
+        const response = await fetch(`https://26.193.242.15:8080/booksdelete/${this.bookToDelete.MaSach}`, {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json'

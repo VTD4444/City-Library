@@ -241,7 +241,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://26.193.242.15:8000/phieumuons/lay1phieumuon/${this.ticketId}`,
+          `https://26.193.242.15:8080/phieumuons/lay1phieumuon/${this.ticketId}`,
           {
             method: "GET",
             headers: {
@@ -296,7 +296,7 @@ export default {
 
     async fetchAvailableBooks() {
       try {
-        const response = await fetch("http://26.193.242.15:8000/books", {
+        const response = await fetch("https://26.193.242.15:8080/books", {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -381,7 +381,7 @@ export default {
 
         // Send update to API
         const response = await fetch(
-          `http://26.193.242.15:8000/phieumuons/${this.ticketId}`,
+          `https://26.193.242.15:8080/phieumuons/${this.ticketId}`,
           {
             method: "PUT",
             headers: {
@@ -431,7 +431,7 @@ export default {
         };
         
         // Send confirm request to API
-        const response = await fetch('http://26.193.242.15:8000/phieumuons/xacnhan', {
+        const response = await fetch('https://26.193.242.15:8080/phieumuons/xacnhan', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -477,7 +477,7 @@ export default {
         this.loading = true;
         
         // Send delete request to API
-        const response = await fetch(`http://26.193.242.15:8000/phieumuons/xoa-phieu-muon/${this.ticketId}`, {
+        const response = await fetch(`https://26.193.242.15:8080/phieumuons/xoa-phieu-muon/${this.ticketId}`, {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json'

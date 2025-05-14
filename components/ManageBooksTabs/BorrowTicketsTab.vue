@@ -369,7 +369,7 @@ export default {
       try {
         // Make API request to get borrow tickets
         const response = await fetch(
-          "http://26.193.242.15:8000/phieumuons/filter",
+          "https://26.193.242.15:8080/phieumuons/filter",
           {
             method: "POST",
             headers: {
@@ -433,7 +433,7 @@ export default {
       try {
         // Make API request to update ticket status
         const response = await fetch(
-          `http://26.193.242.15:8000/phieumuons/${item.MaPhieuMuon}`,
+          `https://26.193.242.15:8080/phieumuons/${item.MaPhieuMuon}`,
           {
             method: "PATCH",
             headers: {
@@ -483,7 +483,7 @@ export default {
       try {
         // Send delete request to API
         const response = await fetch(
-          `http://26.193.242.15:8000/phieumuons/xoa-phieu-muon/${this.ticketToDelete.MaPhieuMuon}`,
+          `https://26.193.242.15:8080/phieumuons/xoa-phieu-muon/${this.ticketToDelete.MaPhieuMuon}`,
           {
             method: "DELETE",
             headers: {

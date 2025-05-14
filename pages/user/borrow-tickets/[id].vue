@@ -176,7 +176,7 @@ export default {
 
       try {
         const response = await fetch(
-          `http://26.193.242.15:8000/phieumuons/lay1phieumuon/${this.ticketId}`,
+          `https://26.193.242.15:8080/phieumuons/lay1phieumuon/${this.ticketId}`,
           {
             method: "GET",
             headers: {

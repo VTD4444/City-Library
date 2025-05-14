@@ -151,7 +151,7 @@ export default {
 
       try {
         // Make API request to get all authors at once
-        const response = await fetch("http://26.193.242.15:8000/tacgia/thongke-tacgia", {
+        const response = await fetch("https://26.193.242.15:8080/tacgia/thongke-tacgia", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
