@@ -71,13 +71,26 @@
             <v-card elevation="0">
               <v-card-title class="d-flex justify-space-between align-center pb-5">
                 Danh sách sách mượn
+
+                <!-- Update the Return Button to check ticket status -->
+                <v-btn
+                  color="green-darken-1"
+                  :disabled="selectedItems.length === 0 || ticket.TrangThaiPhieu === 'ChoXacNhan'"
+                  @click="paid"
+                  prepend-icon="mdi-check-circle"
+                >
+                  Đã trả
+                </v-btn>
               </v-card-title>
 
               <v-data-table
+                v-model="selectedItems"
                 :headers="tableHeaders"
                 :items="borrowedBooks"
                 class="borrowed-books-table"
+                show-select
                 hide-default-footer
+                item-value="MaSach"
               >
                 <!-- STT Column -->
                 <template v-slot:item.stt="{ index }">
@@ -92,6 +105,17 @@
                 <!-- Book Title Column -->
                 <template v-slot:item.TenSach="{ item }">
                   {{ item.TenSach }}
+                </template>
+
+                <!-- Status Column -->
+                <template v-slot:item.TrangThaiSach="{ item }">
+                  <v-chip
+                    size="small"
+                    :color="getStatusChipColor(item.TrangThaiSach)"
+                    :text-color="getStatusChipTextColor(item.TrangThaiSach)"
+                  >
+                    {{ formatStatus(item.TrangThaiSach) }}
+                  </v-chip>
                 </template>
               </v-data-table>
 
@@ -191,7 +215,6 @@ export default {
       originalBooks: [],
       loading: true,
       error: null,
-      saving: false,
 
       // Table headers
       tableHeaders: [
@@ -204,6 +227,7 @@ export default {
         },
         { title: "Mã sách", key: "MaSach", align: "center", width: "120px" },
         { title: "Tên sách", key: "TenSach", align: "left" },
+        { title: "Trạng thái", key: "TrangThaiSach", align: "center", width: "120px" }
       ],
 
       // Add book dialog
@@ -221,6 +245,12 @@ export default {
 
       // Custom delete dialog
       deleteDialog: false,
+
+      // Selected items for return
+      selectedItems: [],
+      returnDialog: {
+        loading: false
+      },
     };
   },
   computed: {
@@ -228,6 +258,13 @@ export default {
     routeTicketId() {
       return this.$route.params.id;
     },
+
+    // Selected books for return
+    selectedBooks() {
+      return this.borrowedBooks.filter((book) => 
+        this.selectedItems.includes(book.MaChiTiet)
+      );
+    }
   },
   async mounted() {
     this.ticketId = this.routeTicketId;
@@ -275,6 +312,7 @@ export default {
           Array.isArray(data.chi_tiet_phieu_muons)
         ) {
           this.borrowedBooks = data.chi_tiet_phieu_muons.map((book) => ({
+            MaChiTiet: book.MaChiTiet,
             MaSach: book.MaSach,
             TenSach: book.TenSach,
             TrangThaiSach: book.TrangThaiSach,
@@ -305,93 +343,46 @@ export default {
       });
     },
 
-    removeBook(book) {
-      const index = this.borrowedBooks.findIndex(
-        (b) => b.MaSach === book.MaSach
-      );
-      if (index !== -1) {
-        this.borrowedBooks.splice(index, 1);
+    formatStatus(status) {
+      switch (status) {
+        case 'ChuaMuon':
+          return 'Chưa mượn';
+        case 'DangMuon':
+          return 'Đang mượn';
+        case 'DaTra':
+          return 'Đã trả';
+        case 'QuaHan':
+          return 'Quá hạn';
+      }
+    },
+    
+    getStatusChipColor(status) {
+      switch (status) {
+        case 'ChuaMuon':
+          return 'yellow-darken-4';
+        case 'DangMuon':
+          return 'green';
+        case 'DaTra':
+          return 'blue';
+        case 'QuaHan':
+          return 'red-lighten-5';
+        default:
+          return 'blue-lighten-5';
       }
     },
 
-    addBook() {
-      if (!this.selectedBook || this.newBookQuantity < 1) return;
-
-      // Check if the book is already in the list
-      const existingBook = this.borrowedBooks.find(
-        (book) => book.MaSach === this.selectedBook.MaSach
-      );
-
-      if (existingBook) {
-        // Update quantity if already exists
-        existingBook.SoLuong =
-          parseInt(existingBook.SoLuong || 1) + parseInt(this.newBookQuantity);
-      } else {
-        // Add as new book
-        this.borrowedBooks.push({
-          MaSach: this.selectedBook.MaSach,
-          TenSach: this.selectedBook.TenSach,
-          TrangThaiSach: "ChuaMuon",
-          SoLuong: parseInt(this.newBookQuantity),
-        });
-      }
-
-      // Reset dialog
-      this.showAddBookDialog = false;
-      this.selectedBook = null;
-      this.newBookQuantity = 1;
-    },
-
-    async saveTicket() {
-      this.saving = true;
-
-      try {
-        // Prepare data for API
-        const updatedTicket = {
-          chi_tiet_phieu_muons: this.borrowedBooks.map((book) => ({
-            MaSach: book.MaSach,
-            SoLuong: book.SoLuong || 1,
-          })),
-        };
-
-        // Send update to API
-        const response = await fetch(
-          `https://26.193.242.15:8080/phieumuons/${this.ticketId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(updatedTicket),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể cập nhật phiếu mượn");
-        }
-
-        // Success
-        this.snackbar = {
-          show: true,
-          text: "Phiếu mượn đã được cập nhật thành công",
-          color: "success",
-        };
-
-        // Exit edit mode and refresh data
-        this.isEditMode = false;
-        await this.fetchTicketDetails();
-        await this.fetchAvailableBooks();
-      } catch (error) {
-        console.error("Error saving ticket:", error);
-        this.snackbar = {
-          show: true,
-          text: `Lỗi: ${error.message || "Không thể cập nhật phiếu mượn"}`,
-          color: "error",
-        };
-      } finally {
-        this.saving = false;
+    getStatusChipTextColor(status) {
+      switch (status) {
+        case 'ChuaMuon':
+          return 'amber-darken-4';
+        case 'DangMuon':
+          return 'white';
+        case 'DaTra':
+          return 'white';
+        case 'QuaHan':
+          return 'red-darken-4';
+        default:
+          return 'grey';
       }
     },
 
@@ -399,10 +390,14 @@ export default {
       try {
         this.loading = true;
         
-        // Prepare request body for API
+        // Get admin info from localStorage
+        const adminData = JSON.parse(localStorage.getItem('adminLogin')) || {};
+        const staffId = adminData.MaNV || 1; // Use MaNV from localStorage, fallback to 1 if not found
+        
+        // Prepare request body for API with the correct staff ID
         const requestBody = {
           "phieu_id": this.ticketId,
-          "manv": 1  // Assuming staff ID value, should be replaced with actual staff ID
+          "manv": staffId  // Use the actual staff ID from localStorage
         };
         
         // Send confirm request to API
@@ -492,6 +487,75 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    
+    async paid() {
+      this.returnDialog.loading = true;
+      
+      try {
+        console.log("Selected items for return:", this.selectedBooks);
+        // Prepare request body with the format shown in the screenshot
+        const requestBody = {
+          MaPhieuMuon: this.ticketId,
+          danhsachcapnhap: this.selectedBooks.map(book => ({
+            MaChiTiet: book.MaSach,
+            TrangThaiSachMuon: "DaTra"
+          }))
+        };
+        
+        // Call API to update book status
+        const response = await fetch(
+          "https://26.193.242.15:8080/phieumuons/chitietphieu/capnhat-trangthai",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+          }
+        );
+        
+        // Check response and handle errors
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || errorData.message || "Không thể cập nhật trạng thái sách");
+        }
+        
+        // Success handling
+        this.snackbar = {
+          show: true,
+          text: `Đã cập nhật trạng thái ${this.selectedItems.length} quyển sách thành công`,
+          color: "success"
+        };
+        
+        // Update local data to reflect changes
+        this.selectedItems.forEach(maChiTiet => {
+          const book = this.borrowedBooks.find(b => b.MaChiTiet === maChiTiet);
+          if (book) {
+            book.TrangThaiSach = "DaTra";
+          }
+        });
+        
+        // Clear selection
+        this.selectedItems = [];
+        
+        // Close dialog
+        this.returnDialog.show = false;
+        
+        // Optionally refresh data from server
+        // await this.fetchTicketDetails();
+        
+      } catch (error) {
+        console.error("Error updating book status:", error);
+        this.snackbar = {
+          show: true,
+          text: `Lỗi: ${error.message || "Không thể cập nhật trạng thái sách"}`,
+          color: "error"
+        };
+      } finally {
+        this.returnDialog.loading = false;
+      }
     }
   },
 };
@@ -546,5 +610,10 @@ export default {
   color: rgba(0, 0, 0, 0.87);
   font-weight: 500;
   padding: 16px;
+}
+
+/* Add styles for status chips */
+.v-data-table :deep(.v-chip--size-small) {
+  font-size: 12px;
 }
 </style>

@@ -145,16 +145,20 @@
             <v-icon color="red">mdi-close</v-icon>
           </v-btn>
         </v-card-title>
-        
+
         <v-divider></v-divider>
-        
+
         <v-card-text class="pt-4 pb-4">
-          <p class="text-body-1">Bạn có muốn mượn sách "{{ book.TieuDe }}" không?</p>
-          <p class="text-body-2 mt-2">Sau khi xác nhận, thủ thư sẽ duyệt phiếu mượn của bạn.</p>
+          <p class="text-body-1">
+            Bạn có muốn mượn sách "{{ book.TieuDe }}" không?
+          </p>
+          <p class="text-body-2 mt-2">
+            Sau khi xác nhận, thủ thư sẽ duyệt phiếu mượn của bạn.
+          </p>
         </v-card-text>
-        
+
         <v-divider></v-divider>
-        
+
         <v-card-actions class="justify-center pa-4">
           <v-btn
             color="success"
@@ -315,7 +319,7 @@ export default {
         if (!response.ok) {
           // Extract error message from different response formats
           let errorMessage = "Không thể tạo phiếu mượn, vui lòng thử lại sau.";
-          
+
           if (data.detail) {
             // Handle specific error format with 'detail' field
             errorMessage = data.detail;
@@ -323,18 +327,23 @@ export default {
             // Handle error format with 'message' field
             errorMessage = data.message;
           }
-          
+
           throw new Error(errorMessage);
         }
 
-        // Handle success case...
-        
+        this.confirmDialog.show = false;
+
+        // Show success message
+        this.snackbar.color = "success";
+        this.snackbar.text =
+          "Tạo phiếu mượn thành công! Thủ thư sẽ xác nhận phiếu của bạn.";
+        this.snackbar.show = true;
       } catch (error) {
         console.error("Error borrowing book:", error);
-        
+
         // Close dialog
         this.confirmDialog.show = false;
-        
+
         // Show error in snackbar
         this.snackbar.color = "error";
         this.snackbar.text = error.message || "Đã xảy ra lỗi khi mượn sách";

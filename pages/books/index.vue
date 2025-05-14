@@ -118,23 +118,23 @@
           <!-- Custom Pagination -->
           <div class="d-flex justify-center align-center pa-4">
             <v-btn
-              color="green"
+              color="white"
               elevation="0"
               icon
               @click="fetchBooks(page - 1)"
               :disabled="page === 1"
             >
-              <v-icon>mdi-chevron-left</v-icon>
+              <v-icon color="green">mdi-chevron-left</v-icon>
             </v-btn>
             <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
             <v-btn
-              color="green"
+              color="white"
               elevation="0"
               icon
               @click="fetchBooks(page + 1)"
               :disabled="page === totalPages"
             >
-              <v-icon>mdi-chevron-right</v-icon>
+              <v-icon color="green">mdi-chevron-right</v-icon>
             </v-btn>
           </div>
         </v-col>
@@ -169,6 +169,7 @@ export default {
       sortOptions: [
         { title: "Mới nhất", value: "newest" },
         { title: "Cũ nhất", value: "oldest" },
+        { title: "Nổi bật", value: "Nổi bật" },
         { title: "Tác giả (A→Z)", value: "Tác giả (A→Z)" },
         { title: "Tên sách (A→Z)", value: "Tên sách (A→Z)" },
       ],
@@ -185,10 +186,9 @@ export default {
     async fetchBooks(page) {
       this.loading = true;
       this.error = null;
-      if(!page) {
+      if (!page) {
         page = this.page;
-      }
-      else {
+      } else {
         this.page = page;
       }
 
@@ -217,6 +217,10 @@ export default {
             break;
           case "Tác giả (A→Z)":
             requestBody.sort_by = "Tác giả (A→Z)";
+            break;
+          case "Nổi bật":
+            this.getFamousBooks(page);
+            return;
             break;
         }
 
@@ -248,6 +252,29 @@ export default {
       } catch (error) {
         console.error("Error fetching books:", error);
         this.error = error.message || "Đã xảy ra lỗi khi tải danh sách sách";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async getFamousBooks(page) {
+      this.loading = true;
+      try {
+        const response = await fetch(
+          `https://26.193.242.15:8080/books/get_famous_list?page=${page}&page_size=12`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+          }
+        );
+        const data = await response.json();
+        this.books = data || [];
+      } catch (error) {
+        console.error("Error fetching famous books:", error);
+        this.books = [];
       } finally {
         this.loading = false;
       }

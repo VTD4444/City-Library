@@ -89,21 +89,19 @@
             {{ item.SoLuongSachMuon || 1 }}
           </template>
 
-          <!-- Status Column -->
+          <!-- Status Column (changed from editable dropdown to display-only chip) -->
           <template v-slot:item.TrangThai="{ item }">
-            <v-select
-              v-model="item.TrangThaiPhieu"
-              :items="statusOptions"
-              density="compact"
-              variant="outlined"
-              hide-details
-              class="status-select"
-              :class="getStatusClass(item.TrangThaiPhieu)"
-              @update:model-value="updateStatus(item)"
-            ></v-select>
+            <v-chip
+              size="small"
+              :color="getStatusChipColor(item.TrangThaiPhieu)"
+              :text-color="getStatusChipTextColor(item.TrangThaiPhieu)"
+              class="font-weight-medium"
+            >
+              {{ getStatusText(item.TrangThaiPhieu) }}
+            </v-chip>
           </template>
 
-          <!-- Actions Column -->
+          <!-- Actions Column (added Confirm button) -->
           <template v-slot:item.actions="{ item }">
             <div class="d-flex justify-center">
               <v-btn
@@ -114,6 +112,16 @@
                 @click="viewTicketDetail(item.MaPhieuMuon)"
               >
                 Xem
+              </v-btn>
+              <v-btn
+                variant="text"
+                color="blue-darken-1"
+                size="small"
+                class="action-button"
+                @click="processConfirmation(item)"
+                :disabled="item.TrangThaiPhieu !== 'ChoXacNhan'"
+              >
+                Xác nhận
               </v-btn>
               <v-btn
                 variant="text"
@@ -132,23 +140,21 @@
       <!-- Custom Pagination -->
       <div class="d-flex justify-center align-center pa-4">
         <v-btn
-          color="green"
+          color="white"
           elevation="0"
           icon
-          @click="page--"
-          :disabled="page === 1"
+          @click="page > 1 ? page-- : page"
         >
-          <v-icon>mdi-chevron-left</v-icon>
+          <v-icon color="green">mdi-chevron-left</v-icon>
         </v-btn>
         <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
         <v-btn
-          color="green"
+          color="white"
           elevation="0"
           icon
-          @click="page++"
-          :disabled="page >= totalPages"
+          @click="page < totalPages ? page++ : page"
         >
-          <v-icon>mdi-chevron-right</v-icon>
+          <v-icon color="green">mdi-chevron-right</v-icon>
         </v-btn>
       </div>
     </v-card>
@@ -171,16 +177,16 @@
             <v-icon color="red">mdi-close</v-icon>
           </v-btn>
         </v-card-title>
-        
+
         <v-divider></v-divider>
-        
+
         <v-card-text class="pt-4 pb-4">
           <p class="text-body-1">Bạn có chắc chắn muốn xóa phiếu mượn này?</p>
           <p class="text-body-2 mt-2">Hành động này không thể hoàn tác.</p>
         </v-card-text>
-        
+
         <v-divider></v-divider>
-        
+
         <v-card-actions class="justify-center pa-4">
           <v-btn
             color="success"
@@ -292,6 +298,11 @@ export default {
       deleteLoading: false,
       deleteItem: null,
       ticketToDelete: null,
+
+      // Confirm dialog state
+      confirmDialog: false,
+      confirmLoading: false,
+      ticketToConfirm: null,
     };
   },
   computed: {
@@ -430,6 +441,33 @@ export default {
       }
     },
 
+    getStatusChipColor(status) {
+      switch (status) {
+        case "ChoXacNhan":
+          return "yellow-darken-4";
+        case "DangMuon":
+          return "green";
+        case "HoanThanh":
+          return "blue";
+        case "QuaHan":
+          return "red";
+      }
+    },
+
+    getStatusChipTextColor(status) {
+      return status === "QuaHan" ? "white" : "black";
+    },
+
+    getStatusText(status) {
+      const statusMap = {
+        ChoXacNhan: "Chờ xác nhận",
+        DangMuon: "Đang mượn",
+        HoanThanh: "Hoàn thành",
+        QuaHan: "Quá hạn",
+      };
+      return statusMap[status] || "Không xác định";
+    },
+
     async updateStatus(item) {
       try {
         // Make API request to update ticket status
@@ -471,6 +509,65 @@ export default {
       this.$router.push(`/admin/borrow-ticket/${ticketId}`);
     },
 
+    async confirmBorrowTicket(item) {
+      // Show confirmation dialog
+      this.ticketToConfirm = item;
+      this.confirmDialog = true;
+    },
+
+    async processConfirmation(item) {
+      this.ticketToConfirm = item;
+      this.confirmLoading = true;
+      try {
+        // Make API request to confirm borrow ticket with correct format
+        const response = await fetch(
+          "https://26.193.242.15:8080/phieumuons/xacnhan",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              phieu_id: this.ticketToConfirm.MaPhieuMuon,
+              manv: 1, // Staff ID - In a real application, get this from the logged in admin
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          let errorMsg = "Không thể xác nhận phiếu mượn";
+          if (data.detail) {
+            errorMsg = data.detail;
+          }
+          throw new Error(errorMsg);
+        }
+
+        this.snackbar = {
+          show: true,
+          text: "Phiếu mượn đã được xác nhận thành công!",
+          color: "success",
+        };
+
+        // Close the confirmation dialog
+        this.confirmDialog = false;
+
+        // Refresh the list of tickets
+        await this.fetchBorrowTickets();
+      } catch (error) {
+        console.error("Error confirming borrow ticket:", error);
+        this.snackbar = {
+          show: true,
+          text: `Lỗi: ${error.message || "Không thể xác nhận phiếu mượn"}`,
+          color: "error",
+        };
+      } finally {
+        this.confirmLoading = false;
+        this.ticketToConfirm = null;
+      }
+    },
+
     deleteTicket(ticket) {
       // Set the ticket to delete and show the confirmation dialog
       this.ticketToDelete = ticket;
@@ -495,9 +592,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(
-            errorData.message || "Không thể xóa phiếu mượn"
-          );
+          throw new Error(errorData.message || "Không thể xóa phiếu mượn");
         }
 
         // Show success message

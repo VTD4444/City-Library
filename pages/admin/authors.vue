@@ -22,7 +22,10 @@
 
       <!-- Loading state -->
       <v-card v-if="loading" elevation="0" class="pa-6 text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
         <div class="mt-2">Đang tải dữ liệu tác giả...</div>
       </v-card>
 
@@ -32,7 +35,11 @@
       </v-alert>
 
       <!-- Empty state -->
-      <v-card v-else-if="!allAuthors.length" elevation="0" class="pa-6 text-center">
+      <v-card
+        v-else-if="!allAuthors.length"
+        elevation="0"
+        class="pa-6 text-center"
+      >
         <v-icon size="64" color="grey" class="mb-4">mdi-account-group</v-icon>
         <h2 class="text-h5 mb-2">Không có tác giả nào</h2>
         <p class="mb-6 text-body-1">
@@ -68,14 +75,22 @@
 
         <!-- Custom Pagination -->
         <div class="d-flex justify-center align-center pa-4">
-          <v-btn color="white" elevation="0" icon @click="page--" :disabled="page === 1">
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page > 1 ? page-- : page"
+          >
             <v-icon color="green">mdi-chevron-left</v-icon>
           </v-btn>
-          <span class="mx-2">
-            Trang {{ page }} / {{ totalPages }}
-          </span>
-          <v-btn color="green" elevation="0" icon @click="page++" :disabled="page >= totalPages">
-            <v-icon>mdi-chevron-right</v-icon>
+          <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page < totalPages ? page++ : page"
+          >
+            <v-icon color="green">mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </v-card>
@@ -98,9 +113,20 @@ export default {
 
       // Table headers
       tableHeaders: [
-        { title: "STT", key: "stt", align: "center", width: "80px", sortable: false },
+        {
+          title: "STT",
+          key: "stt",
+          align: "center",
+          width: "80px",
+          sortable: false,
+        },
         { title: "Tên tác giả", key: "TenTacGia", align: "left" },
-        { title: "Số sách", key: "SoLuongSach", align: "center", width: "150px" },
+        {
+          title: "Số sách",
+          key: "SoLuongSach",
+          align: "center",
+          width: "150px",
+        },
       ],
     };
   },
@@ -110,30 +136,30 @@ export default {
       if (!this.search) {
         return this.allAuthors;
       }
-      
+
       const searchLower = this.search.toLowerCase().trim();
-      return this.allAuthors.filter(author => 
+      return this.allAuthors.filter((author) =>
         author.TenTacGia.toLowerCase().includes(searchLower)
       );
     },
-    
+
     // Get the paginated authors
     paginatedAuthors() {
       const startIndex = (this.page - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      
+
       return this.filteredAuthors
         .slice(startIndex, endIndex)
         .map((author, index) => ({
           ...author,
-          stt: startIndex + index + 1
+          stt: startIndex + index + 1,
         }));
     },
-    
+
     // Calculate total pages
     totalPages() {
       return Math.ceil(this.filteredAuthors.length / this.itemsPerPage);
-    }
+    },
   },
   mounted() {
     this.fetchAllAuthors();
@@ -142,7 +168,7 @@ export default {
     // Reset to page 1 when search changes
     search() {
       this.page = 1;
-    }
+    },
   },
   methods: {
     async fetchAllAuthors() {
@@ -151,34 +177,41 @@ export default {
 
       try {
         // Make API request to get all authors at once
-        const response = await fetch("https://26.193.242.15:8080/tacgia/thongke-tacgia", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            page: 1,
-            page_size: 1000 // Get a large number to fetch all at once
-          })
-        });
+        const response = await fetch(
+          "https://26.193.242.15:8080/tacgia/thongke-tacgia",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              page: 1,
+              page_size: 1000, // Get a large number to fetch all at once
+            }),
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải danh sách tác giả");
+          throw new Error(
+            errorData.message || "Không thể tải danh sách tác giả"
+          );
         }
 
         const data = await response.json();
         this.allAuthors = data.items || data;
       } catch (error) {
         console.error("Error fetching authors:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải danh sách tác giả"}`;
+        this.error = `Lỗi: ${
+          error.message || "Không thể tải danh sách tác giả"
+        }`;
         this.allAuthors = [];
       } finally {
         this.loading = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

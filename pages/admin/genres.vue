@@ -1,7 +1,9 @@
 <template>
   <div class="genres-page">
     <v-container>
-      <h1 class="text-h4 text-center font-weight-bold mb-6">QUẢN LÝ THỂ LOẠI</h1>
+      <h1 class="text-h4 text-center font-weight-bold mb-6">
+        QUẢN LÝ THỂ LOẠI
+      </h1>
 
       <!-- Header and Actions Row -->
       <div class="d-flex flex-wrap align-center justify-space-between mb-4">
@@ -22,7 +24,10 @@
 
       <!-- Loading state -->
       <v-card v-if="loading" elevation="0" class="pa-6 text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
         <div class="mt-2">Đang tải dữ liệu thể loại...</div>
       </v-card>
 
@@ -32,8 +37,14 @@
       </v-alert>
 
       <!-- Empty state -->
-      <v-card v-else-if="!allGenres.length" elevation="0" class="pa-6 text-center">
-        <v-icon size="64" color="grey" class="mb-4">mdi-book-variant-multiple</v-icon>
+      <v-card
+        v-else-if="!allGenres.length"
+        elevation="0"
+        class="pa-6 text-center"
+      >
+        <v-icon size="64" color="grey" class="mb-4"
+          >mdi-book-variant-multiple</v-icon
+        >
         <h2 class="text-h5 mb-2">Không có thể loại nào</h2>
         <p class="mb-6 text-body-1">
           Hiện tại chưa có thể loại nào trong hệ thống
@@ -68,14 +79,22 @@
 
         <!-- Custom Pagination -->
         <div class="d-flex justify-center align-center pa-4">
-          <v-btn color="green" elevation="0" icon @click="page--" :disabled="page === 1">
-            <v-icon>mdi-chevron-left</v-icon>
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page > 1 ? page-- : page"
+          >
+            <v-icon color="green">mdi-chevron-left</v-icon>
           </v-btn>
-          <span class="mx-2">
-            Trang {{ page }} / {{ totalPages }}
-          </span>
-          <v-btn color="green" elevation="0" icon @click="page++" :disabled="page >= totalPages">
-            <v-icon>mdi-chevron-right</v-icon>
+          <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page < totalPages ? page++ : page"
+          >
+            <v-icon color="green">mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </v-card>
@@ -98,7 +117,13 @@ export default {
 
       // Table headers
       tableHeaders: [
-        { title: "STT", key: "stt", align: "center", width: "80px", sortable: false },
+        {
+          title: "STT",
+          key: "stt",
+          align: "center",
+          width: "80px",
+          sortable: false,
+        },
         { title: "Tên thể loại", key: "TenTheLoai", align: "left" },
         { title: "Số sách", key: "SoSach", align: "center", width: "150px" },
       ],
@@ -110,30 +135,30 @@ export default {
       if (!this.search) {
         return this.allGenres;
       }
-      
+
       const searchLower = this.search.toLowerCase().trim();
-      return this.allGenres.filter(genre => 
+      return this.allGenres.filter((genre) =>
         genre.TenTheLoai.toLowerCase().includes(searchLower)
       );
     },
-    
+
     // Get the paginated genres
     paginatedGenres() {
       const startIndex = (this.page - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      
+
       return this.filteredGenres
         .slice(startIndex, endIndex)
         .map((genre, index) => ({
           ...genre,
-          stt: startIndex + index + 1
+          stt: startIndex + index + 1,
         }));
     },
-    
+
     // Calculate total pages
     totalPages() {
       return Math.ceil(this.filteredGenres.length / this.itemsPerPage);
-    }
+    },
   },
   mounted() {
     this.fetchAllGenres();
@@ -142,7 +167,7 @@ export default {
     // Reset to page 1 when search changes
     search() {
       this.page = 1;
-    }
+    },
   },
   methods: {
     async fetchAllGenres() {
@@ -151,35 +176,42 @@ export default {
 
       try {
         // Make API request to get all genres at once
-        const response = await fetch("https://26.193.242.15:8080/theloai/thongke-theloai", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            sort_by: "TheLoai",
-            page: 1,
-            page_size: 1000 // Get a large number to fetch all at once
-          })
-        });
+        const response = await fetch(
+          "https://26.193.242.15:8080/theloai/thongke-theloai",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              sort_by: "TheLoai",
+              page: 1,
+              page_size: 1000, // Get a large number to fetch all at once
+            }),
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải danh sách thể loại");
+          throw new Error(
+            errorData.message || "Không thể tải danh sách thể loại"
+          );
         }
 
         const data = await response.json();
         this.allGenres = data;
       } catch (error) {
         console.error("Error fetching genres:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải danh sách thể loại"}`;
+        this.error = `Lỗi: ${
+          error.message || "Không thể tải danh sách thể loại"
+        }`;
         this.allGenres = [];
       } finally {
         this.loading = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -15,7 +15,7 @@
         ></v-text-field>
       </div>
     </div>
-    
+
     <!-- Loading state -->
     <v-card v-if="loading" elevation="0" class="pa-6 text-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -28,8 +28,14 @@
     </v-alert>
 
     <!-- Empty state -->
-    <v-card v-else-if="!allBorrowedBooks.length" elevation="0" class="pa-6 text-center">
-      <v-icon size="64" color="blue-grey" class="mb-4">mdi-book-arrow-right</v-icon>
+    <v-card
+      v-else-if="!allBorrowedBooks.length"
+      elevation="0"
+      class="pa-6 text-center"
+    >
+      <v-icon size="64" color="blue-grey" class="mb-4"
+        >mdi-book-arrow-right</v-icon
+      >
       <h2 class="text-h5 mb-2">Không có sách đang mượn</h2>
       <p class="mb-6 text-body-1">
         Hiện tại không có độc giả nào đang mượn sách
@@ -64,7 +70,10 @@
           <template v-slot:item.HinhAnh="{ item }">
             <div class="book-image-container">
               <img
-                :src="item.HinhAnh || 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'"
+                :src="
+                  item.HinhAnh ||
+                  'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
+                "
                 :alt="item.TenSach"
                 class="book-thumbnail"
               />
@@ -133,14 +142,22 @@
 
       <!-- Custom Pagination -->
       <div class="d-flex justify-center align-center pa-4">
-        <v-btn color="green" elevation="0" icon @click="page--" :disabled="page === 1">
-          <v-icon>mdi-chevron-left</v-icon>
+        <v-btn
+          color="white"
+          elevation="0"
+          icon
+          @click="page > 1 ? page-- : page"
+        >
+          <v-icon color="green">mdi-chevron-left</v-icon>
         </v-btn>
-        <span class="mx-2">
-          Trang {{ page }} / {{ totalPages }}
-        </span>
-        <v-btn color="green" elevation="0" icon @click="page++" :disabled="page >= totalPages">
-          <v-icon>mdi-chevron-right</v-icon>
+        <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
+        <v-btn
+          color="white"
+          elevation="0"
+          icon
+          @click="page < totalPages ? page++ : page"
+        >
+          <v-icon color="green">mdi-chevron-right</v-icon>
         </v-btn>
       </div>
     </v-card>
@@ -161,8 +178,8 @@ export default {
   props: {
     searchQuery: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   data() {
     return {
@@ -174,69 +191,113 @@ export default {
       itemsPerPage: 10,
       search: "", // Local search state
       searchTimeout: null, // For debouncing search
-      
+
       // Status options
       statusOptions: [
-        { title: 'Đã mượn', value: 'DaMuon' },
-        { title: 'Đã trả', value: 'DaTra' },
+        { title: "Đã mượn", value: "DaMuon" },
+        { title: "Đã trả", value: "DaTra" },
       ],
-      
+
       // Table headers
       tableHeaders: [
-        { title: "STT", key: "stt", align: "center", width: "50px", sortable: false },
+        {
+          title: "STT",
+          key: "stt",
+          align: "center",
+          width: "50px",
+          sortable: false,
+        },
         { title: "Mã sách", key: "MaSach", align: "center", width: "100px" },
         { title: "Tên sách", key: "TenSach", align: "left", width: "200px" },
-        { title: "Hình ảnh", key: "HinhAnh", align: "center", width: "100px", sortable: false },
+        {
+          title: "Hình ảnh",
+          key: "HinhAnh",
+          align: "center",
+          width: "100px",
+          sortable: false,
+        },
         { title: "Thể Loại", key: "TheLoai", align: "center", width: "130px" },
-        { title: "Bạn đọc mượn", key: "TenDocGia", align: "left", width: "150px" },
-        { title: "Ngày mượn", key: "NgayMuon", align: "center", width: "120px" },
-        { title: "Ngày trả dự kiến", key: "NgayTraDuKien", align: "center", width: "150px" },
-        { title: "Trạng thái", key: "TrangThai", align: "center", width: "120px", sortable: false },
-        { title: "Hành động", key: "actions", align: "center", width: "120px", sortable: false }
+        {
+          title: "Bạn đọc mượn",
+          key: "TenDocGia",
+          align: "left",
+          width: "150px",
+        },
+        {
+          title: "Ngày mượn",
+          key: "NgayMuon",
+          align: "center",
+          width: "120px",
+        },
+        {
+          title: "Ngày trả dự kiến",
+          key: "NgayTraDuKien",
+          align: "center",
+          width: "150px",
+        },
+        {
+          title: "Trạng thái",
+          key: "TrangThai",
+          align: "center",
+          width: "120px",
+          sortable: false,
+        },
+        {
+          title: "Hành động",
+          key: "actions",
+          align: "center",
+          width: "120px",
+          sortable: false,
+        },
       ],
-      
+
       // Snackbar for notifications
       snackbar: {
         show: false,
         text: "",
-        color: "success"
-      }
+        color: "success",
+      },
     };
   },
   computed: {
     // Filter borrowed books based on search term
     filteredBorrowedBooks() {
       if (!this.allBorrowedBooks.length) return [];
-      
+
       if (!this.search) {
         return this.allBorrowedBooks;
       }
-      
+
       const searchLower = this.search.toLowerCase().trim();
-      return this.allBorrowedBooks.filter(book => 
-        (book.MaSach && book.MaSach.toString().toLowerCase().includes(searchLower)) ||
-        (book.TenSach && book.TenSach.toLowerCase().includes(searchLower)) ||
-        (book.HoTen && book.HoTen.toLowerCase().includes(searchLower))
+      return this.allBorrowedBooks.filter(
+        (book) =>
+          (book.MaSach &&
+            book.MaSach.toString().toLowerCase().includes(searchLower)) ||
+          (book.TenSach && book.TenSach.toLowerCase().includes(searchLower)) ||
+          (book.HoTen && book.HoTen.toLowerCase().includes(searchLower))
       );
     },
-    
+
     // Get the paginated borrowed books
     paginatedBorrowedBooks() {
       const startIndex = (this.page - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      
+
       return this.filteredBorrowedBooks
         .slice(startIndex, endIndex)
         .map((book, index) => ({
           ...book,
-          stt: startIndex + index + 1
+          stt: startIndex + index + 1,
         }));
     },
-    
+
     // Calculate total pages
     totalPages() {
-      return Math.max(1, Math.ceil(this.filteredBorrowedBooks.length / this.itemsPerPage));
-    }
+      return Math.max(
+        1,
+        Math.ceil(this.filteredBorrowedBooks.length / this.itemsPerPage)
+      );
+    },
   },
   watch: {
     // Watch for changes in parent's searchQuery to update local search
@@ -244,23 +305,23 @@ export default {
       handler(newVal) {
         this.search = newVal;
       },
-      immediate: true
+      immediate: true,
     },
-    
+
     // Add watcher for local search to trigger API calls
     search(newVal) {
       this.page = 1;
-      
+
       // Clear any existing timeout
       if (this.searchTimeout) {
         clearTimeout(this.searchTimeout);
       }
-      
+
       // Set a timeout to avoid making API calls for every keystroke
       this.searchTimeout = setTimeout(() => {
         this.fetchBorrowedBooks();
       }, 500); // 500ms delay
-    }
+    },
   },
   mounted() {
     this.fetchBorrowedBooks();
@@ -272,30 +333,37 @@ export default {
 
       try {
         // Make API request to get borrowed books
-        const response = await fetch("https://26.193.242.15:8080/chitietphieumuon/searchfilterchitietphieumuon", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            MaSachorTieuDeorTenTacGia: this.search.trim(),
-            trang_thai: "", // Empty to get all statuses
-            page: 1,
-            page_size: 1000 // Get a large number to fetch all at once
-          })
-        });
+        const response = await fetch(
+          "https://26.193.242.15:8080/chitietphieumuon/searchfilterchitietphieumuon",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({
+              MaSachorTieuDeorTenTacGia: this.search.trim(),
+              trang_thai: "", // Empty to get all statuses
+              page: 1,
+              page_size: 1000, // Get a large number to fetch all at once
+            }),
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải danh sách sách đã mượn");
+          throw new Error(
+            errorData.message || "Không thể tải danh sách sách đã mượn"
+          );
         }
 
         const data = await response.json();
         this.allBorrowedBooks = Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Error fetching borrowed books:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải danh sách sách đã mượn"}`;
+        this.error = `Lỗi: ${
+          error.message || "Không thể tải danh sách sách đã mượn"
+        }`;
         this.allBorrowedBooks = [];
       } finally {
         this.loading = false;
@@ -304,38 +372,41 @@ export default {
 
     formatDate(dateString) {
       if (!dateString) return "N/A";
-      
+
       const date = new Date(dateString);
       return date.toLocaleDateString("vi-VN", {
         day: "2-digit",
         month: "2-digit",
-        year: "numeric"
+        year: "numeric",
       });
     },
 
     getStatusClass(status) {
       switch (status) {
-        case 'DaMuon':
-          return 'status-borrowed';
-        case 'DaTra':
-          return 'status-returned';
+        case "DaMuon":
+          return "status-borrowed";
+        case "DaTra":
+          return "status-returned";
         default:
-          return '';
+          return "";
       }
     },
 
     async updateStatus(item) {
       try {
         // Make API request to update book borrow status
-        const response = await fetch(`https://26.193.242.15:8080/chitietphieumuon/${item.MaPhieuMuon}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            TrangThai: item.TrangThai
-          })
-        });
+        const response = await fetch(
+          `https://26.193.242.15:8080/chitietphieumuon/${item.MaPhieuMuon}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              TrangThai: item.TrangThai,
+            }),
+          }
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
@@ -345,28 +416,28 @@ export default {
         this.snackbar = {
           show: true,
           text: "Cập nhật trạng thái thành công!",
-          color: "success"
+          color: "success",
         };
       } catch (error) {
         console.error("Error updating status:", error);
         this.snackbar = {
           show: true,
           text: `Lỗi: ${error.message || "Không thể cập nhật trạng thái"}`,
-          color: "error"
+          color: "error",
         };
       }
     },
 
     viewBorrowDetail(borrowId) {
       // Navigate to borrow detail page or show detail dialog
-      this.$emit('view-borrow', borrowId);
+      this.$emit("view-borrow", borrowId);
     },
 
     viewBookDetail(bookId) {
       // Navigate to book detail page or show detail dialog
-      this.$emit('view-book', bookId);
-    }
-  }
+      this.$emit("view-book", bookId);
+    },
+  },
 };
 </script>
 
