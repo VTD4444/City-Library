@@ -73,7 +73,7 @@ export default {
                 category: '',
                 TheLoai: '',
                 coverImage: '',
-                AnhMinhHoa: ''
+                AnhMinhHoaURL: ''
             })
         }
     },
@@ -89,15 +89,15 @@ export default {
         },
         getImageUrl() {
             // Xử lý đường dẫn ảnh từ API
-            if (!this.book.AnhMinhHoa) {
+            if (!this.book.AnhMinhHoaURL) {
                 return 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg';
             }
             
-            if (this.book.AnhMinhHoa.startsWith('http')) {
-                return this.book.AnhMinhHoa;
+            if (this.book.AnhMinhHoaURL.startsWith('http')) {
+                return this.book.AnhMinhHoaURL;
             }
             
-            return `https://26.193.242.15:8080${this.book.AnhMinhHoa}`;
+            return `https://26.193.242.15:8080${this.book.AnhMinhHoaURL}`;
         }
     }
 }

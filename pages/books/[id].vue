@@ -241,17 +241,17 @@ export default {
 
     getBookImage() {
       // Xử lý đường dẫn hình ảnh
-      if (!this.book || !this.book.AnhMinhHoa) {
+      if (!this.book || !this.book.AnhMinhHoaURL) {
         return "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"; // Hình đại diện nếu không có ảnh
       }
 
       // Nếu đường dẫn là URL đầy đủ
-      if (this.book.AnhMinhHoa.startsWith("http")) {
-        return this.book.AnhMinhHoa;
+      if (this.book.AnhMinhHoaURL.startsWith("http")) {
+        return this.book.AnhMinhHoaURL;
       }
 
       // Nếu là đường dẫn tương đối, thêm base URL
-      return `https://26.193.242.15:8080${this.book.AnhMinhHoa}`;
+      return `https://26.193.242.15:8080${this.book.AnhMinhHoaURL}`;
     },
 
     borrowBook() {
@@ -413,7 +413,7 @@ export default {
         TieuDe: this.book.TieuDe,
         TacGia: this.book.TacGia,
         TheLoai: this.book.TheLoai,
-        AnhMinhHoa: this.book.AnhMinhHoa,
+        AnhMinhHoaURL: this.book.AnhMinhHoaURL,
         quantity: 1, // Mỗi loại sách chỉ được mượn 1 cuốn
       });
 
