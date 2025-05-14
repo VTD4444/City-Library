@@ -1,15 +1,13 @@
 <template>
-  <div class="readers-page">
+  <div class="all-readers-tab">
     <v-container>
-      <h1 class="text-h4 text-center font-weight-bold mb-6">QUẢN LÝ NGƯỜI DÙNG</h1>
-
-      <!-- Header and Actions Row -->
+        <h1 class="text-h4 text-center font-weight-bold mb-6">QUẢN LÝ BẠN ĐỌC</h1>
+      <!-- Header Bar with Search -->
       <div class="d-flex flex-wrap align-center justify-space-between mb-4">
-        <!-- Right side: Search Bar -->
         <div class="search-container d-flex ml-auto">
           <v-text-field
             v-model="search"
-            placeholder="Tìm kiếm người dùng"
+            placeholder="Tìm kiếm theo tên/email"
             density="compact"
             variant="outlined"
             hide-details
@@ -22,8 +20,11 @@
 
       <!-- Loading state -->
       <v-card v-if="loading" elevation="0" class="pa-6 text-center">
-        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-        <div class="mt-2">Đang tải thông tin người dùng...</div>
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+        <div class="mt-2">Đang tải danh sách bạn đọc...</div>
       </v-card>
 
       <!-- Error state -->
@@ -32,16 +33,20 @@
       </v-alert>
 
       <!-- Empty state -->
-      <v-card v-else-if="!allReaders.length" elevation="0" class="pa-6 text-center">
-        <v-icon size="64" color="grey" class="mb-4">mdi-account-group</v-icon>
-        <h2 class="text-h5 mb-2">Không có người dùng nào</h2>
+      <v-card
+        v-else-if="!filteredReaders.length"
+        elevation="0"
+        class="pa-6 text-center"
+      >
+        <v-icon size="64" color="grey" class="mb-4">mdi-account-off</v-icon>
+        <h2 class="text-h5 mb-2">Không tìm thấy bạn đọc nào</h2>
         <p class="mb-6 text-body-1">
-          Hiện tại chưa có người dùng nào trong hệ thống
+          Không có bạn đọc nào phù hợp với tiêu chí tìm kiếm
         </p>
       </v-card>
 
       <!-- Readers Table -->
-      <v-card v-else elevation="0" class="mx-auto">
+      <v-card v-else elevation="0" max-width="900px" class="mx-auto">
         <div class="table-responsive">
           <v-data-table
             :headers="tableHeaders"
@@ -64,41 +69,29 @@
               {{ item.Email }}
             </template>
 
-            <!-- Join Date Column -->
+            <!-- Registration Date Column -->
             <template v-slot:item.NgayDangKy="{ item }">
               {{ formatDate(item.NgayDangKy) }}
             </template>
 
-            <!-- Status Column -->
-            <template v-slot:item.TrangThai="{ item }">
-              <v-chip
-                :color="getStatusColor(item.TrangThai)"
-                :text-color="getStatusTextColor(item.TrangThai)"
-                size="small"
-                class="font-weight-medium"
-              >
-                {{ getStatusText(item.TrangThai) }}
-              </v-chip>
-            </template>
-
             <!-- Actions Column -->
             <template v-slot:item.actions="{ item }">
-              <div class="d-flex gap-2">
+              <div class="d-flex justify-center">
                 <v-btn
-                  color="green"
-                  variant="flat"
+                  variant="text"
+                  color="green-darken-1"
                   size="small"
-                  @click="viewReader(item)"
-                  class="px-3"
+                  class="action-button"
+                  @click="viewReaderDetail(item.MaDocGia)"
                 >
                   Xem
                 </v-btn>
                 <v-btn
+                  variant="text"
                   color="red"
-                  variant="flat"
                   size="small"
-                  @click="confirmDelete(item)"
-                  class="px-3"
+                  class="action-button"
+                  @click="deleteReader(item)"
                 >
                   Xóa
                 </v-btn>
@@ -107,90 +100,140 @@
           </v-data-table>
         </div>
 
-        <!-- Custom Pagination -->
+        <!-- Simplified Pagination -->
         <div class="d-flex justify-center align-center pa-4">
-          <v-btn color="green" elevation="0" icon @click="page--" :disabled="page === 1">
+          <v-btn color="green" icon @click="page--" :disabled="page === 1">
             <v-icon>mdi-chevron-left</v-icon>
           </v-btn>
-          <span class="mx-2">
-            Trang {{ page }} / {{ totalPages }}
-          </span>
-          <v-btn color="green" elevation="0" icon @click="page++" :disabled="page >= totalPages">
+
+          <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
+
+          <v-btn
+            color="green"
+            icon
+            @click="page++"
+            :disabled="page >= totalPages"
+          >
             <v-icon>mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </v-card>
+
+      <!-- Delete confirmation dialog -->
+      <v-dialog v-model="deleteDialog.show" max-width="500px" persistent>
+        <v-card>
+          <v-card-title class="notification-header d-flex align-center">
+            <span>Xác nhận xóa</span>
+            <v-spacer></v-spacer>
+            <v-btn elevation="0" icon @click="deleteDialog.show = false">
+              <v-icon color="red">mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
+
+          <v-divider></v-divider>
+
+          <v-card-text class="pt-4 pb-4">
+            <p class="text-body-1">
+              Bạn có chắc chắn muốn xóa bạn đọc
+              <strong>{{ deleteDialog.reader?.HoTen }}</strong
+              >?
+            </p>
+            <p class="text-body-2 mt-2 text-red">
+              Hành động này không thể hoàn tác.
+            </p>
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-actions class="justify-center pa-4">
+            <v-btn
+              color="green"
+              min-width="80"
+              variant="flat"
+              @click="confirmDelete"
+              :loading="deleteDialog.loading"
+            >
+              Xác nhận
+            </v-btn>
+            <v-btn
+              color="grey"
+              variant="outlined"
+              min-width="80"
+              class="ml-4"
+              @click="deleteDialog.show = false"
+            >
+              Hủy
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <!-- Snackbar for notifications -->
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        :timeout="3000"
+      >
+        {{ snackbar.text }}
+        <template v-slot:actions>
+          <v-btn variant="text" @click="snackbar.show = false">Đóng</v-btn>
+        </template>
+      </v-snackbar>
     </v-container>
-
-    <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="deleteDialog.show" max-width="500">
-      <v-card>
-        <v-card-title class="text-h5 bg-grey-lighten-3 py-4 px-6">
-          Xác nhận xóa tài khoản
-        </v-card-title>
-        <v-card-text class="pt-5">
-          <p>Bạn có chắc chắn muốn xóa tài khoản của người dùng <strong>{{ deleteDialog.reader?.HoTen }}</strong>?</p>
-          <p class="text-caption text-red mt-3">Lưu ý: Hành động này không thể hoàn tác.</p>
-        </v-card-text>
-        <v-card-actions class="pa-6 pt-0">
-          <v-spacer></v-spacer>
-          <v-btn
-            color="grey"
-            variant="text"
-            @click="deleteDialog.show = false"
-          >
-            Hủy
-          </v-btn>
-          <v-btn
-            color="red"
-            variant="flat"
-            @click="deleteReader"
-            :loading="deleteDialog.loading"
-          >
-            Xác nhận xóa
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Snackbar thông báo -->
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" :timeout="3000">
-      {{ snackbar.text }}
-      <template v-slot:actions>
-        <v-btn variant="text" @click="snackbar.show = false"> Đóng </v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ReadersPage",
+  name: "AllReadersTab",
+  props: {
+    searchQuery: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       // Table data
-      allReaders: [], // Store all readers
+      allReaders: [],
       loading: false,
       error: null,
       page: 1,
       itemsPerPage: 10,
-      search: "",
+      search: "", // Local search state
+      searchTimeout: null,
 
       // Table headers
       tableHeaders: [
-        { title: "STT", key: "stt", align: "center", width: "60px", sortable: false },
-        { title: "Tên bạn đọc", key: "HoTen", align: "left" },
-        { title: "Email", key: "Email", align: "left" },
-        { title: "Ngày tham gia", key: "NgayDangKy", align: "center", width: "150px" },
-        { title: "Trạng thái", key: "TrangThai", align: "center", width: "120px" },
-        { title: "Hành động", key: "actions", align: "center", width: "150px", sortable: false },
+        {
+          title: "STT",
+          key: "stt",
+          align: "center",
+          width: "60px",
+          sortable: false,
+        },
+        { title: "Tên bạn đọc", key: "HoTen", align: "left", width: "150px" },
+        { title: "Email", key: "Email", align: "left", width: "150px" },
+        {
+          title: "Ngày tham gia",
+          key: "NgayDangKy",
+          align: "center",
+          width: "150px",
+        },
+        {
+          title: "Hành động",
+          key: "actions",
+          align: "center",
+          width: "150px",
+          sortable: false,
+        },
       ],
 
       // Delete dialog
       deleteDialog: {
         show: false,
         reader: null,
-        loading: false
+        loading: false,
       },
 
       // Snackbar
@@ -207,43 +250,54 @@ export default {
       if (!this.search) {
         return this.allReaders;
       }
-      
+
       const searchLower = this.search.toLowerCase().trim();
-      return this.allReaders.filter(reader => 
-        reader.HoTen?.toLowerCase().includes(searchLower) ||
-        reader.Email?.toLowerCase().includes(searchLower) ||
-        reader.TenDangNhap?.toLowerCase().includes(searchLower)
+      return this.allReaders.filter(
+        (reader) =>
+          (reader.HoTen || "").toLowerCase().includes(searchLower) ||
+          (reader.Email || "").toLowerCase().includes(searchLower) ||
+          (reader.TenDangNhap || "").toLowerCase().includes(searchLower) ||
+          (reader.SoDienThoai || "").includes(searchLower)
       );
     },
-    
+
     // Get the paginated readers
     paginatedReaders() {
       const startIndex = (this.page - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
-      
+
       return this.filteredReaders
         .slice(startIndex, endIndex)
         .map((reader, index) => ({
           ...reader,
           stt: startIndex + index + 1,
-          // Add a default status if not present
-          TrangThai: this.determineStatus(reader)
         }));
     },
-    
+
     // Calculate total pages
     totalPages() {
-      return Math.ceil(this.filteredReaders.length / this.itemsPerPage);
-    }
-  },
-  mounted() {
-    this.fetchAllReaders();
+      return Math.max(
+        1,
+        Math.ceil(this.filteredReaders.length / this.itemsPerPage)
+      );
+    },
   },
   watch: {
+    // Watch for changes in parent's searchQuery to update local search
+    searchQuery: {
+      handler(newVal) {
+        this.search = newVal;
+      },
+      immediate: true,
+    },
+
     // Reset to page 1 when search changes
     search() {
       this.page = 1;
-    }
+    },
+  },
+  mounted() {
+    this.fetchAllReaders();
   },
   methods: {
     async fetchAllReaders() {
@@ -252,18 +306,24 @@ export default {
 
       try {
         // Make API request to get all readers
-        const response = await fetch("https://26.193.242.15:8080/bandoc/get_all");
+        const response = await fetch(
+          "https://26.193.242.15:8080/bandoc/get_all"
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải danh sách người dùng");
+          throw new Error(
+            errorData.message || "Không thể tải danh sách bạn đọc"
+          );
         }
 
         const data = await response.json();
-        this.allReaders = data;
+        this.allReaders = Array.isArray(data) ? data : [];
       } catch (error) {
         console.error("Error fetching readers:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải danh sách người dùng"}`;
+        this.error = `Lỗi: ${
+          error.message || "Không thể tải danh sách bạn đọc"
+        }`;
         this.allReaders = [];
       } finally {
         this.loading = false;
@@ -272,120 +332,83 @@ export default {
 
     formatDate(dateString) {
       if (!dateString) return "N/A";
-      
+
       try {
         const date = new Date(dateString);
-        return new Intl.DateTimeFormat('vi-VN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        }).format(date);
+        return date.toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
       } catch (error) {
         return dateString;
       }
     },
 
-    determineStatus(reader) {
-      // Determine the reader's status - this could be replaced with actual status logic
-      // For now, we'll assume all are active unless otherwise specified
-      return reader.TrangThai || 'active';
+    viewReaderDetail(readerId) {
+      this.$router.push(`/admin/reader/${readerId}`);
     },
 
-    getStatusText(status) {
-      switch (status) {
-        case 'active':
-          return 'Đã cấp thẻ';
-        case 'pending':
-          return 'Chờ cấp thẻ';
-        case 'inactive':
-          return 'Chưa cấp thẻ';
-        default:
-          return 'Chưa cấp thẻ';
-      }
-    },
-
-    getStatusColor(status) {
-      switch (status) {
-        case 'active':
-          return 'green-lighten-5';
-        case 'pending':
-          return 'orange-lighten-5';
-        case 'inactive':
-          return 'red-lighten-5';
-        default:
-          return 'grey-lighten-3';
-      }
-    },
-
-    getStatusTextColor(status) {
-      switch (status) {
-        case 'active':
-          return 'green-darken-1';
-        case 'pending':
-          return 'orange-darken-1';
-        case 'inactive':
-          return 'red-darken-1';
-        default:
-          return 'grey-darken-1';
-      }
-    },
-
-    viewReader(reader) {
-      // Navigate to reader detail page
-      this.$router.push(`/admin/readers/${reader.MaDocGia}`);
-    },
-
-    confirmDelete(reader) {
+    deleteReader(reader) {
       this.deleteDialog.reader = reader;
       this.deleteDialog.show = true;
     },
 
-    async deleteReader() {
+    async confirmDelete() {
       if (!this.deleteDialog.reader) return;
-      
+
       this.deleteDialog.loading = true;
-      
+
       try {
-        // Here you would make an API call to delete the reader
+        // Here you would make an actual API call to delete the reader
         // For example:
         // const response = await fetch(`https://26.193.242.15:8080/bandoc/delete/${this.deleteDialog.reader.MaDocGia}`, {
-        //   method: 'DELETE'
+        //   method: 'DELETE',
+        //   headers: {
+        //     'Accept': 'application/json'
+        //   }
         // });
-        
+
         // if (!response.ok) {
-        //   throw new Error('Failed to delete reader');
+        //   const errorData = await response.json();
+        //   throw new Error(errorData.message || 'Không thể xóa bạn đọc');
         // }
-        
-        // Simulate API call for demonstration
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Remove reader from the list (in real app, you'd refetch or remove from array)
+
+        // Simulate successful deletion (replace with actual API call)
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        // Remove the reader from the local list
         this.allReaders = this.allReaders.filter(
-          reader => reader.MaDocGia !== this.deleteDialog.reader.MaDocGia
+          (r) => r.MaDocGia !== this.deleteDialog.reader.MaDocGia
         );
-        
+
         // Show success message
-        this.snackbar.color = 'success';
-        this.snackbar.text = `Đã xóa tài khoản của ${this.deleteDialog.reader.HoTen}`;
-        this.snackbar.show = true;
-        
-        // Close dialog
+        this.snackbar = {
+          show: true,
+          text: `Đã xóa bạn đọc "${this.deleteDialog.reader.HoTen}" thành công`,
+          color: "success",
+        };
+
+        // Close dialog and reset
         this.deleteDialog.show = false;
+        this.deleteDialog.reader = null;
       } catch (error) {
-        console.error('Error deleting reader:', error);
-        this.snackbar.color = 'error';
-        this.snackbar.text = 'Không thể xóa tài khoản. Vui lòng thử lại.';
-        this.snackbar.show = true;
+        console.error("Error deleting reader:", error);
+        this.snackbar = {
+          show: true,
+          text: `Lỗi: ${error.message || "Không thể xóa bạn đọc"}`,
+          color: "error",
+        };
       } finally {
         this.deleteDialog.loading = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.readers-page {
+.all-readers-tab {
   padding-bottom: 40px;
 }
 
@@ -420,12 +443,6 @@ export default {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-/* Pagination styling */
-:deep(.v-pagination__item--active) {
-  background-color: #2e7d32 !important;
-  color: white !important;
-}
-
 /* Animation for table rows */
 .readers-table :deep(tbody tr) {
   transition: background-color 0.2s ease;
@@ -443,27 +460,17 @@ export default {
 
 /* Set minimum width for the table */
 .readers-table {
-  min-width: 800px; /* Adjust this value as needed */
+  min-width: 800px;
 }
 
-/* Width for specific columns */
-.readers-table :deep(table th.column-stt) {
-  width: 60px;
+.notification-header {
+  background-color: #f8f8f8;
+  color: rgba(0, 0, 0, 0.87);
+  font-weight: 500;
+  padding: 16px;
+}
+
+.action-button {
   min-width: 60px;
-}
-
-.readers-table :deep(table th.column-date) {
-  width: 150px;
-  min-width: 150px;
-}
-
-.readers-table :deep(table th.column-status) {
-  width: 120px;
-  min-width: 120px;
-}
-
-.readers-table :deep(table th.column-actions) {
-  width: 150px;
-  min-width: 150px;
 }
 </style>
