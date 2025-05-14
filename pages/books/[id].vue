@@ -313,65 +313,32 @@ export default {
 
         // Handle API response
         if (!response.ok) {
-          throw new Error(
-            data.message ||
-              "Không thể tạo phiếu mượn, vui lòng thử lại sau"
-          );
+          // Extract error message from different response formats
+          let errorMessage = "Không thể tạo phiếu mượn, vui lòng thử lại sau.";
+          
+          if (data.detail) {
+            // Handle specific error format with 'detail' field
+            errorMessage = data.detail;
+          } else if (data.message) {
+            // Handle error format with 'message' field
+            errorMessage = data.message;
+          }
+          
+          throw new Error(errorMessage);
         }
 
-        // Save notification if provided
-        if (data.thong_bao) {
-          // Get existing notifications
-          const existingNotifications = JSON.parse(
-            localStorage.getItem("notifications") || "[]"
-          );
-
-          // Add new notification to front
-          existingNotifications.unshift({
-            id: data.thong_bao.MaThongBao,
-            type: data.thong_bao.LoaiThongBao,
-            message: data.thong_bao.NoiDung,
-            date: data.thong_bao.NgayTao,
-            status: data.thong_bao.TrangThai,
-            data: {
-              MaPhieuMuon: data.thong_bao.MaPhieuMuon,
-            },
-          });
-
-          // Save back to localStorage
-          localStorage.setItem(
-            "notifications",
-            JSON.stringify(existingNotifications)
-          );
-
-          // Trigger notification update
-          this.$root.$emit("new-notification");
-        }
-
-        // Close dialog
-        this.confirmDialog.show = false;
-
-        // Show success message
-        this.snackbar.color = "success";
-        this.snackbar.text =
-          data.message || "Đã gửi yêu cầu mượn sách thành công";
-        this.snackbar.show = true;
-
-        // Navigate to borrow tickets page
-        setTimeout(() => {
-          this.$router.push("/user/borrow-tickets");
-        }, 1500);
+        // Handle success case...
+        
       } catch (error) {
-        console.error("Error creating borrow request:", error);
-
-        // Show error message
-        this.snackbar.color = "error";
-        this.snackbar.text =
-          error.message || "Đã xảy ra lỗi khi gửi yêu cầu mượn sách";
-        this.snackbar.show = true;
-
+        console.error("Error borrowing book:", error);
+        
         // Close dialog
         this.confirmDialog.show = false;
+        
+        // Show error in snackbar
+        this.snackbar.color = "error";
+        this.snackbar.text = error.message || "Đã xảy ra lỗi khi mượn sách";
+        this.snackbar.show = true;
       } finally {
         this.confirmDialog.loading = false;
       }

@@ -68,8 +68,8 @@
 
         <!-- Custom Pagination -->
         <div class="d-flex justify-center align-center pa-4">
-          <v-btn color="green" elevation="0" icon @click="page--" :disabled="page === 1">
-            <v-icon>mdi-chevron-left</v-icon>
+          <v-btn color="white" elevation="0" icon @click="page--" :disabled="page === 1">
+            <v-icon color="green">mdi-chevron-left</v-icon>
           </v-btn>
           <span class="mx-2">
             Trang {{ page }} / {{ totalPages }}

@@ -294,9 +294,18 @@ export default {
 
         // Xử lý phản hồi từ API
         if (!response.ok) {
-          throw new Error(
-            data.message || "Không thể tạo phiếu mượn, vui lòng thử lại sau"
-          );
+          // Extract error message based on different response formats
+          let errorMessage = "Không thể tạo phiếu mượn, vui lòng thử lại sau";
+          
+          if (data.detail) {
+            // Format with 'detail' field (shown in the error)
+            errorMessage = data.detail;
+          } else if (data.message) {
+            // Format with 'message' field
+            errorMessage = data.message;
+          }
+          
+          throw new Error(errorMessage);
         }
 
         // Lưu thông báo vào localStorage để hiển thị trong notification panel

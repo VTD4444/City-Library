@@ -169,8 +169,8 @@ export default {
       sortOptions: [
         { title: "Mới nhất", value: "newest" },
         { title: "Cũ nhất", value: "oldest" },
-        { title: "Tên A-Z", value: "asc" },
-        { title: "Tên Z-A", value: "desc" },
+        { title: "Tác giả (A→Z)", value: "Tác giả (A→Z)" },
+        { title: "Tên sách (A→Z)", value: "Tên sách (A→Z)" },
       ],
     };
   },
@@ -201,27 +201,22 @@ export default {
           NamXuatBan: this.filters.namXuatBan
             ? parseInt(this.filters.namXuatBan)
             : 0,
-          sort_by: "title", // Mặc định sắp xếp theo tiêu đề
-          sort_order: "asc", // Mặc định sắp xếp tăng dần
+          sort_by: "Tên sách (A→Z)",
         };
 
         // Cập nhật sort_by và sort_order dựa vào lựa chọn người dùng
         switch (this.filters.sortBy) {
           case "newest":
-            requestBody.sort_by = "NamXuatBan";
-            requestBody.sort_order = "desc";
+            requestBody.sort_by = "Mới nhất";
             break;
           case "oldest":
-            requestBody.sort_by = "NamXuatBan";
-            requestBody.sort_order = "asc";
+            requestBody.sort_by = "Cũ nhất";
             break;
-          case "asc":
-            requestBody.sort_by = "TieuDe";
-            requestBody.sort_order = "asc";
+          case "Tên sách (A→Z)":
+            requestBody.sort_by = "Tên sách (A→Z)";
             break;
-          case "desc":
-            requestBody.sort_by = "TieuDe";
-            requestBody.sort_order = "desc";
+          case "Tác giả (A→Z)":
+            requestBody.sort_by = "Tác giả (A→Z)";
             break;
         }
 
