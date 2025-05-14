@@ -17,18 +17,45 @@
             <span class="text-h4 text-md-h4 text-sm-h5">City Library</span>
           </div>
 
-          <!-- Phần đăng nhập/đăng ký hoặc chào người dùng -->
+          <!-- Phần đăng nhập hoặc chào người dùng -->
           <div class="mx-2">
-            <template>
-              <v-btn
-                rounded
-                variant="tonal"
-                color="green"
-                class="user-menu-btn"
+            <!-- Hiển thị nếu chưa đăng nhập -->
+            <template v-if="!isAuthenticated">
+              <router-link
+                to="/admin/login"
+                class="text-decoration-none text-subtitle-1 text-green-darken-1"
+                >Đăng nhập</router-link
               >
-                <v-icon left class="mr-1">mdi-account-circle</v-icon>
-                <span>Trang nhân viên</span>
-              </v-btn>
+            </template>
+
+            <!-- Hiển thị nếu đã đăng nhập -->
+            <template v-else>
+              <v-menu>
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    rounded
+                    variant="tonal"
+                    color="green"
+                    class="admin-menu-btn"
+                  >
+                    <v-icon left class="mr-1">mdi-account-circle</v-icon>
+                    <span>Xin chào {{ HoTen }}</span>
+                  </v-btn>
+                </template>
+
+                <v-list>
+                  <v-list-item to="/admin/profile">
+                    <v-list-item-title>Thông tin cá nhân</v-list-item-title>
+                  </v-list-item>
+                  <v-divider></v-divider>
+                  <v-list-item @click="logout">
+                    <v-list-item-title class="text-red"
+                      >Đăng xuất</v-list-item-title
+                    >
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </template>
           </div>
         </div>
@@ -38,30 +65,35 @@
         >
           <v-tabs v-model="activeTab" color="green-darken-1" align-tabs="start">
             <v-tab
+              v-if="isAuthenticated"
               to="/admin"
               value="adminHome"
               class="text-subtitle-1 font-weight-medium"
               >TRANG CHỦ</v-tab
             >
             <v-tab
+              v-if="isAuthenticated"
               to="/admin/manage-books"
               value="manageBooks"
               class="text-subtitle-1 font-weight-medium"
               >QUẢN LÝ TÀI LIỆU</v-tab
             >
             <v-tab
+              v-if="isAuthenticated"
               to="/admin/genres"
               value="genres"
               class="text-subtitle-1 font-weight-medium"
               >THỂ LOẠI</v-tab
             >
             <v-tab
+              v-if="isAuthenticated"
               to="/admin/authors"
               value="authors"
               class="text-subtitle-1 font-weight-medium"
               >TÁC GIẢ</v-tab
             >
             <v-tab
+              v-if="isAuthenticated"
               to="/admin/readers"
               value="readers"
               class="text-subtitle-1 font-weight-medium"
@@ -94,6 +126,14 @@
           />
           <v-app-bar-title>City Library</v-app-bar-title>
         </div>
+
+        <!-- Add login/logout to mobile header -->
+        <v-spacer></v-spacer>
+        <template v-if="isAuthenticated">
+          <v-btn icon @click="logout">
+            <v-icon>mdi-logout</v-icon>
+          </v-btn>
+        </template>
       </v-app-bar>
 
       <!-- Add a placeholder for the navigation drawer -->
@@ -114,6 +154,9 @@
             class="mr-3"
           />
           <span class="text-h6">City Library</span>
+          <v-spacer></v-spacer>
+          <!-- Show admin name in drawer if authenticated -->
+          <span v-if="isAuthenticated" class="text-body-2">{{ HoTen }}</span>
         </div>
 
         <v-divider></v-divider>
@@ -132,7 +175,6 @@
             </template>
             <v-list-item-title>Quản lý tài liệu</v-list-item-title>
           </v-list-item>
-
 
           <v-list-item to="/admin/genres" color="green-darken-1">
             <template v-slot:prepend>
@@ -154,6 +196,29 @@
             </template>
             <v-list-item-title>Bạn đọc</v-list-item-title>
           </v-list-item>
+
+          <!-- Add login/logout to mobile drawer -->
+          <v-divider class="my-2"></v-divider>
+
+          <!-- Show login if not authenticated -->
+          <template v-if="!isAuthenticated">
+            <v-list-item to="/admin/login" color="green-darken-1">
+              <template v-slot:prepend>
+                <v-icon color="green-darken-1">mdi-login</v-icon>
+              </template>
+              <v-list-item-title>Đăng nhập</v-list-item-title>
+            </v-list-item>
+          </template>
+
+          <!-- Show logout if authenticated -->
+          <template v-else>
+            <v-list-item @click="logout" color="error">
+              <template v-slot:prepend>
+                <v-icon color="error">mdi-logout</v-icon>
+              </template>
+              <v-list-item-title class="text-red">Đăng xuất</v-list-item-title>
+            </v-list-item>
+          </template>
         </v-list>
       </v-navigation-drawer>
     </div>
@@ -200,6 +265,65 @@ export default {
       },
     },
   },
+  mounted() {
+    // Check login status when component is mounted
+    this.checkLoginStatus();
+  },
+  activated() {
+    // Re-check login status when component is activated
+    this.checkLoginStatus();
+  },
+  watch: {
+    $route() {
+      // Check login status on route change
+      this.checkLoginStatus();
+    },
+  },
+  methods: {
+    // Xử lý đăng xuất
+    logout() {
+      // Xóa thông tin người dùng
+      localStorage.removeItem("adminLogin");
+
+      // Xóa thông tin admin trong component
+      this.TenDangNhap = "";
+      this.HoTen = "";
+      this.MaDocGia = "";
+      this.isAuthenticated = false;
+
+      // Chuyển hướng đến trang đăng nhập
+      this.$router.push("/admin/login");
+    },
+
+    // Thêm phương thức để kiểm tra đăng nhập và cập nhật UI
+    checkLoginStatus() {
+      // Check for admin login first
+      let adminLogin = localStorage.getItem("adminLogin");
+      if (adminLogin) {
+        adminLogin = JSON.parse(adminLogin);
+        this.isAuthenticated = true;
+        this.TenDangNhap = adminLogin.TenDangNhap;
+        this.MaDocGia = adminLogin.MaNV;
+        this.HoTen = adminLogin.HoTen;
+        return;
+      }
+
+      // Fallback to regular admin login
+      let admin = localStorage.getItem("admin");
+      if (admin) {
+        adminLogin = JSON.parse(adminLogin);
+        this.isAuthenticated = true;
+        this.TenDangNhap = adminLogin.TenDangNhap;
+        this.MaDocGia = adminLogin.MaDocGia;
+        this.HoTen = adminLogin.HoTen;
+      } else {
+        this.isAuthenticated = false;
+        this.TenDangNhap = "";
+        this.HoTen = "";
+        this.MaDocGia = "";
+      }
+    },
+  },
 };
 </script>
 
@@ -214,6 +338,11 @@ export default {
 
 .text-red {
   color: #f44336 !important;
+}
+
+/* Add new styles for admin menu */
+.admin-menu-btn {
+  font-weight: normal;
 }
 
 /* Thêm style để xử lý hiển thị mobile */

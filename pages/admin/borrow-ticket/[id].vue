@@ -294,31 +294,6 @@ export default {
       }
     },
 
-    async fetchAvailableBooks() {
-      try {
-        const response = await fetch("https://26.193.242.15:8080/books", {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Không thể tải danh sách sách");
-        }
-
-        const books = await response.json();
-
-        // Filter out books that are already in the borrow ticket
-        const borrowedIds = this.borrowedBooks.map((book) => book.MaSach);
-        this.availableBooks = books.filter(
-          (book) => !borrowedIds.includes(book.MaSach) && book.SoLuongHienCo > 0
-        );
-      } catch (error) {
-        console.error("Error fetching available books:", error);
-      }
-    },
-
     formatDate(dateString) {
       if (!dateString) return "Chưa xác định";
 

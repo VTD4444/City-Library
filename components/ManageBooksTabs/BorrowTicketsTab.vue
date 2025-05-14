@@ -220,7 +220,6 @@ export default {
       statusOptions: [
         { title: "Chờ xác nhận", value: "ChoXacNhan" },
         { title: "Đang mượn", value: "DangMuon" },
-        { title: "Đã trả", value: "DaTra" },
       ],
 
       // Table headers

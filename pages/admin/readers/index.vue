@@ -346,7 +346,7 @@ export default {
     },
 
     viewReaderDetail(readerId) {
-      this.$router.push(`/admin/reader/${readerId}`);
+      this.$router.push(`/admin/readers/${readerId}`);
     },
 
     deleteReader(reader) {
@@ -360,22 +360,26 @@ export default {
       this.deleteDialog.loading = true;
 
       try {
-        // Here you would make an actual API call to delete the reader
-        // For example:
-        // const response = await fetch(`https://26.193.242.15:8080/bandoc/delete/${this.deleteDialog.reader.MaDocGia}`, {
-        //   method: 'DELETE',
-        //   headers: {
-        //     'Accept': 'application/json'
-        //   }
-        // });
-
-        // if (!response.ok) {
-        //   const errorData = await response.json();
-        //   throw new Error(errorData.message || 'Không thể xóa bạn đọc');
-        // }
-
-        // Simulate successful deletion (replace with actual API call)
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        // Call the API to delete the reader
+        const response = await fetch(`https://26.193.242.15:8080/bandoc/delete_user?user_id=${this.deleteDialog.reader.MaDocGia}`, {
+          method: 'DELETE',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        // Handle potential error responses
+        if (!response.ok) {
+          let errorMsg = "Không thể xóa bạn đọc";
+          if (response.status === 404) {
+            errorMsg = data.detail || "Không tìm thấy độc giả";
+          } else if (data.detail) {
+            errorMsg = data.detail;
+          }
+          throw new Error(errorMsg);
+        }
 
         // Remove the reader from the local list
         this.allReaders = this.allReaders.filter(
@@ -399,6 +403,7 @@ export default {
           text: `Lỗi: ${error.message || "Không thể xóa bạn đọc"}`,
           color: "error",
         };
+        this.deleteDialog.show = false;
       } finally {
         this.deleteDialog.loading = false;
       }
