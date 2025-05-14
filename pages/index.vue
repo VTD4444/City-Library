@@ -169,7 +169,7 @@ export default {
         publishYear: book.NamXuatBan,
         publisher: book.NhaXuatBan,
         category: this.getCategoryLabel(book.TheLoai),
-        coverImage: book.AnhMinhHoaURL || 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
+        coverImage: book.AnhMinhHoaURL || 'http://www.svgrepo.com/show/508699/landscape-placeholder.svg'
       }));
     },
     
@@ -228,7 +228,7 @@ export default {
     async getNewBooks() {
       this.loadingNewBooks = true;
       try {
-        const response = await fetch('http://26.193.242.15:8000/books/get_new_list?page=1&page_size=4', {
+        const response = await fetch('https://26.193.242.15:8080/books/get_new_list?page=1&page_size=4', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -276,12 +276,6 @@ export default {
 
 .search-input ::v-deep .v-field__outline {
   display: none;
-}
-
-.search-button {
-  font-weight: 500;
-  background-color: #B7C9B3 !important;
-  color: #464F4A !important;
 }
 
 /* Thêm CSS để loại bỏ padding của v-text-field */

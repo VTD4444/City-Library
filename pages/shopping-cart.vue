@@ -347,8 +347,8 @@ export default {
 
         // Chuyển hướng đến trang phiếu mượn sau 1.5 giây
         setTimeout(() => {
-          this.$router.push("/phieumuon");
-        }, 1500);
+          this.$router.push("/user/borrowed-tickets/");
+        }, 1000);
       } catch (error) {
         console.error("Error creating loan:", error);
 

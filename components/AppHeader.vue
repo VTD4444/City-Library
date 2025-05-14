@@ -426,6 +426,54 @@
         </v-list>
       </v-navigation-drawer>
     </div>
+
+    <!-- Notification Detail Dialog -->
+    <v-dialog v-model="notificationDetailsDialog.show" max-width="500">
+      <v-card v-if="notificationDetailsDialog.notification">
+        <v-card-title class="d-flex align-center pa-4">
+          <v-icon
+            size="24"
+            :color="getNotificationIconColor(notificationDetailsDialog.notification.LoaiThongBao)"
+            class="mr-3"
+          >
+            {{ getNotificationIcon(notificationDetailsDialog.notification.LoaiThongBao) }}
+          </v-icon>
+          <span>{{ getNotificationTitle(notificationDetailsDialog.notification.LoaiThongBao) }}</span>
+          <v-spacer></v-spacer>
+          <v-btn icon elevation="0" @click="notificationDetailsDialog.show = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-4">
+          <p class="text-body-1 mb-4">{{ notificationDetailsDialog.notification.NoiDung }}</p>
+          
+          <div class="d-flex align-center text-caption text-grey">
+            <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
+            {{ formatDate(notificationDetailsDialog.notification.NgayTao) }}
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn 
+            v-if="notificationDetailsDialog.notification.LoaiThongBao === 'PHIEU_TAO_THANH_CONG' && 
+                  notificationDetailsDialog.notification.MaPhieuMuon"
+            color="primary"
+            @click="navigateFromDetails"
+          >
+            Xem phiếu mượn
+          </v-btn>
+          <v-btn variant="text" @click="notificationDetailsDialog.show = false">
+            Đóng
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -438,6 +486,12 @@ export default {
       notificationInterval: null,
       notificationPollingTime: 30000, // 30 seconds refresh interval
       refreshing: false,
+      
+      // Add notification details dialog data
+      notificationDetailsDialog: {
+        show: false,
+        notification: null,
+      },
       
       // Your existing data properties
       drawer: false,
@@ -563,7 +617,7 @@ export default {
     async viewNotification(notification) {
       if (notification.TrangThai === "ChuaDoc") {
         try {
-          // Gọi API để đánh dấu là đã đọc
+          // Existing code to mark as read...
           const response = await fetch(`http://26.193.242.15:8000/thongbao/xacnhan/${notification.MaThongBao}`, {
             method: 'GET',
             headers: {
@@ -576,28 +630,25 @@ export default {
             throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
           }
           
-          // Cập nhật trạng thái trong mảng hiện tại
+          // Update notification status locally
           notification.TrangThai = "DaDoc";
           
-          // Cập nhật số lượng thông báo chưa đọc
+          // Update unread count
           this.unreadNotificationsCount = this.notifications.filter(
             (item) => item.TrangThai === "ChuaDoc"
           ).length;
         } catch (error) {
           console.error("Error marking notification as read:", error);
-          // Có thể hiển thị thông báo lỗi nếu cần thiết
         }
       }
 
-      // Xử lý chuyển hướng dựa vào loại thông báo
-      if (
-        notification.LoaiThongBao === "PHIEU_TAO_THANH_CONG" &&
-        notification.MaPhieuMuon
-      ) {
-        this.$router.push(`/user/borrow-tickets/${notification.MaPhieuMuon}`);
-        this.showDesktopNotifications = false;
-        this.showMobileNotifications = false;
-      }
+      // Set the notification for detail view
+      this.notificationDetailsDialog.notification = notification;
+      this.notificationDetailsDialog.show = true;
+      
+      // Close notification dropdown menus
+      this.showDesktopNotifications = false;
+      this.showMobileNotifications = false;
     },
 
     async markAllAsRead() {
@@ -732,6 +783,15 @@ export default {
       // If you want to use a sound:
       // const notificationSound = new Audio('/notification-sound.mp3');
       // notificationSound.play();
+    },
+
+    navigateFromDetails() {
+      const notification = this.notificationDetailsDialog.notification;
+      if (notification && notification.LoaiThongBao === "PHIEU_TAO_THANH_CONG" && 
+          notification.MaPhieuMuon) {
+        this.$router.push(`/user/borrow-tickets/${notification.MaPhieuMuon}`);
+        this.notificationDetailsDialog.show = false;
+      }
     },
   },
 
@@ -930,5 +990,14 @@ export default {
     overscroll-behavior: contain;
     height: 100vh !important; /* Ensure the content takes full height */
   }
+}
+
+/* Add these styles for the notification details dialog */
+:deep(.v-dialog > .v-card > .v-card-text) {
+  padding: 16px;
+}
+
+:deep(.v-card-actions) {
+  padding: 16px;
 }
 </style>

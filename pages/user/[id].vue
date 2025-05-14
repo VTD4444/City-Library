@@ -22,7 +22,7 @@
           <!-- Các liên kết khác -->
           <v-list rounded="lg" nav>
             <v-list-item
-              to="/phieumuon"
+              to="/user/borrow-tickets"
               prepend-icon="mdi-book-open-variant"
               title="Lịch sử mượn sách"
             ></v-list-item>

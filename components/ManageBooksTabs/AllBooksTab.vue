@@ -6,7 +6,7 @@
           <v-btn
             color="green"
             prepend-icon="mdi-plus"
-            @click="openAddBookDialog"
+            @click="goToCreateBookPage"
             class="text-white"
           >
             Thêm sách
@@ -74,7 +74,7 @@
           <template v-slot:item.HinhAnh="{ item }">
             <div class="book-image-container">
               <img
-                :src="item.HinhAnh || '/https://www.svgrepo.com/show/508699/landscape-placeholder.svg'"
+                :src="item.AnhMinhHoaURL || '/https://www.svgrepo.com/show/508699/landscape-placeholder.svg'"
                 :alt="item.TenSach"
                 class="book-thumbnail"
               />
@@ -443,12 +443,8 @@ export default {
       });
     },
 
-    openAddBookDialog() {
-      // Implement this method if needed
-    },
-    
-    closeBookDialog() {
-      // Implement this method if needed
+    goToCreateBookPage() {
+      this.$router.push("/admin/book/create");
     },
 
     viewBookDetail(bookId) {
@@ -467,7 +463,7 @@ export default {
       this.deleteLoading = true;
       try {
         // Send delete request to API
-        const response = await fetch(`http://26.193.242.15:8000/books/${this.bookToDelete.MaSach}`, {
+        const response = await fetch(`http://26.193.242.15:8000/booksdelete/${this.bookToDelete.MaSach}`, {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json'

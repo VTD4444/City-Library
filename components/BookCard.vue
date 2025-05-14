@@ -33,7 +33,7 @@
         <v-card-text class="py-0">
             <div class="text-body-2 mb-1 text-truncate">Tác giả: {{ book.author || book.TacGia }}</div>
             <div class="text-body-2 mb-1 text-truncate">Năm xuất bản: {{ book.publishYear || book.NamXuatBan }}</div>
-            <div class="text-body-2 text-truncate">NXB: {{ book.publisher || book.NXB }}</div>
+            <div class="text-body-2 text-truncate">NXB: {{ book.publisher || book.NhaXuatBan }}</div>
         </v-card-text>
 
         <v-card-actions class="pt-0">

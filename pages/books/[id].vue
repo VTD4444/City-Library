@@ -359,7 +359,7 @@ export default {
 
         // Navigate to borrow tickets page
         setTimeout(() => {
-          this.$router.push("/phieumuon");
+          this.$router.push("/user/borrow-tickets");
         }, 1500);
       } catch (error) {
         console.error("Error creating borrow request:", error);
