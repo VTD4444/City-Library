@@ -90,7 +90,7 @@
                 class="borrowed-books-table"
                 show-select
                 hide-default-footer
-                item-value="MaSach"
+                item-value="MaChiTiet"
               >
                 <!-- STT Column -->
                 <template v-slot:item.stt="{ index }">
@@ -498,7 +498,7 @@ export default {
         const requestBody = {
           MaPhieuMuon: this.ticketId,
           danhsachcapnhap: this.selectedBooks.map(book => ({
-            MaChiTiet: book.MaSach,
+            MaChiTiet: book.MaChiTiet,
             TrangThaiSachMuon: "DaTra"
           }))
         };

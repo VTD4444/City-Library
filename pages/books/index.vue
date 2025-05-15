@@ -121,8 +121,7 @@
               color="white"
               elevation="0"
               icon
-              @click="fetchBooks(page - 1)"
-              :disabled="page === 1"
+              @click="page > 1 ? fetchBooks(page - 1) : page"
             >
               <v-icon color="green">mdi-chevron-left</v-icon>
             </v-btn>
@@ -131,8 +130,7 @@
               color="white"
               elevation="0"
               icon
-              @click="fetchBooks(page + 1)"
-              :disabled="page === totalPages"
+              @click="page < totalPages ? fetchBooks(page + 1) : page"
             >
               <v-icon color="green">mdi-chevron-right</v-icon>
             </v-btn>

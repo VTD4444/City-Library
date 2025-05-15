@@ -144,18 +144,24 @@
 
       <!-- Simplified Pagination -->
       <div class="d-flex justify-center align-center pa-4">
-        <v-btn color="green" icon @click="page--" :disabled="page === 1">
-          <v-icon>mdi-chevron-left</v-icon>
-        </v-btn>
-        
-        <span class="mx-2">
-          Trang {{ page }} / {{ totalPages }}
-        </span>
-        
-        <v-btn color="green" icon @click="page++" :disabled="page >= totalPages">
-          <v-icon>mdi-chevron-right</v-icon>
-        </v-btn>
-      </div>
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page > 1 ? page-- : page"
+          >
+            <v-icon color="green">mdi-chevron-left</v-icon>
+          </v-btn>
+          <span class="mx-2"> Trang {{ page }} / {{ totalPages }} </span>
+          <v-btn
+            color="white"
+            elevation="0"
+            icon
+            @click="page < totalPages ? page++ : page"
+          >
+            <v-icon color="green">mdi-chevron-right</v-icon>
+          </v-btn>
+        </div>
     </v-card>
 
     <!-- Add custom delete confirmation dialog -->

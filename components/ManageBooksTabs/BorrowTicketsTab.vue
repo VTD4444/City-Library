@@ -85,8 +85,8 @@
           </template>
 
           <!-- Book Count Column -->
-          <template v-slot:item.SoLuongSachMuon="{ item }">
-            {{ item.SoLuongSachMuon || 1 }}
+          <template v-slot:item.SoLuongSachTrongPhieu="{ item }">
+            {{ item.SoLuongSachTrongPhieu || 1 }}
           </template>
 
           <!-- Status Column (changed from editable dropdown to display-only chip) -->
@@ -267,7 +267,7 @@ export default {
         },
         {
           title: "SL sách mượn",
-          key: "SoLuongSachMuon",
+          key: "SoLuongSachTrongPhieu",
           align: "center",
           width: "80px",
         },
