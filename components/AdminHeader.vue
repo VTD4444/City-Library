@@ -308,17 +308,7 @@ export default {
         this.MaDocGia = adminLogin.MaNV;
         this.HoTen = adminLogin.HoTen;
         return;
-      }
-
-      // Fallback to regular admin login
-      let admin = localStorage.getItem("admin");
-      if (admin) {
-        adminLogin = JSON.parse(adminLogin);
-        this.isAuthenticated = true;
-        this.TenDangNhap = adminLogin.TenDangNhap;
-        this.MaDocGia = adminLogin.MaDocGia;
-        this.HoTen = adminLogin.HoTen;
-      } else {
+      }else {
         this.isAuthenticated = false;
         this.TenDangNhap = "";
         this.HoTen = "";

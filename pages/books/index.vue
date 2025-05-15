@@ -6,18 +6,6 @@
         <v-col cols="12" md="3" lg="3">
           <v-card class="pa-4 filter-card" flat>
             <div class="mb-3">
-              <label class="text-body-2 mb-1 d-block">Thể loại</label>
-              <v-text-field
-                v-model="filters.theLoai"
-                placeholder="Nhập thể loại"
-                variant="outlined"
-                density="compact"
-                hide-details
-                class="mb-3"
-              ></v-text-field>
-            </div>
-
-            <div class="mb-3">
               <label class="text-body-2 mb-1 d-block">Tên sách</label>
               <v-text-field
                 v-model="filters.tenSach"
@@ -30,10 +18,10 @@
             </div>
 
             <div class="mb-3">
-              <label class="text-body-2 mb-1 d-block">Năm xuất bản</label>
+              <label class="text-body-2 mb-1 d-block">Thể loại</label>
               <v-text-field
-                v-model="filters.namXuatBan"
-                placeholder="Nhập năm xuất bản"
+                v-model="filters.theLoai"
+                placeholder="Nhập thể loại"
                 variant="outlined"
                 density="compact"
                 hide-details
@@ -46,6 +34,18 @@
               <v-text-field
                 v-model="filters.tacGia"
                 placeholder="Nhập tên tác giả"
+                variant="outlined"
+                density="compact"
+                hide-details
+                class="mb-3"
+              ></v-text-field>
+            </div>
+
+            <div class="mb-3">
+              <label class="text-body-2 mb-1 d-block">Năm xuất bản</label>
+              <v-text-field
+                v-model="filters.namXuatBan"
+                placeholder="Nhập năm xuất bản"
                 variant="outlined"
                 density="compact"
                 hide-details
