@@ -337,4 +337,10 @@ export default {
 :deep(.v-text-field .v-field:hover .v-field__outline) {
   color: rgba(0, 0, 0, 0.24);
 }
+
+:deep(.v-label) {
+  color: #686868 !important;
+  font-weight: 500 !important;
+  opacity: 0.75 !important;
+}
 </style>
