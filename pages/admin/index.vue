@@ -48,7 +48,7 @@
 
         <v-row>
           <v-col cols="12" class="d-flex justify-end">
-            <router-link to="/books" class="text-decoration-none">
+            <router-link to="/admin/manage-books" class="text-decoration-none">
               <span class="text-body-2">Hiển thị thêm <v-icon small>mdi-chevron-double-right</v-icon></span>
             </router-link>
           </v-col>
@@ -108,7 +108,7 @@
 
         <v-row>
           <v-col cols="12" class="d-flex justify-end">
-            <router-link to="/books" class="text-decoration-none">
+            <router-link to="/admin/manage-books" class="text-decoration-none">
               <span class="text-body-2">Hiển thị thêm <v-icon small>mdi-chevron-double-right</v-icon></span>
             </router-link>
           </v-col>
@@ -193,7 +193,15 @@ export default {
 
   methods: {
     search() {
-      // existing search method
+      if (this.searchQuery.trim()) {
+        this.$router.push({
+          path: '/admin/manage-books',
+          query: { q: this.searchQuery.trim() }
+        });
+      } else {
+        // If search query is empty, just navigate to books page
+        this.$router.push('/books');
+      }
     },
 
     async getFamousBooks() {
@@ -271,8 +279,6 @@ export default {
 
 .search-button {
   font-weight: 500;
-  background-color: #B7C9B3 !important;
-  color: #464F4A !important;
 }
 
 /* Thêm CSS để loại bỏ padding của v-text-field */

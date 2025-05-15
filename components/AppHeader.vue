@@ -643,6 +643,13 @@ export default {
           }
         }
 
+        // Sort notifications by date - newest first
+        newNotifications.sort((a, b) => {
+          const dateA = new Date(a.NgayTao);
+          const dateB = new Date(b.NgayTao);
+          return dateB - dateA; // Descending order (newest first)
+        });
+
         this.notifications = newNotifications;
 
         // Đếm số lượng thông báo chưa đọc

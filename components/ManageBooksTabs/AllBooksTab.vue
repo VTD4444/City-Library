@@ -333,6 +333,9 @@ export default {
     }
   },
   mounted() {
+    if (this.$route.query.q) {
+      this.search = this.$route.query.q;
+    }
     this.fetchBooks();
   },
   methods: {
