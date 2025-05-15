@@ -353,7 +353,7 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.message || "Không thể tải danh sách sách đã mượn"
+            errorData.detail || "Không thể tải danh sách sách đã mượn"
           );
         }
 
@@ -362,7 +362,7 @@ export default {
       } catch (error) {
         console.error("Error fetching borrowed books:", error);
         this.error = `Lỗi: ${
-          error.message || "Không thể tải danh sách sách đã mượn"
+          error.detail || "Không thể tải danh sách sách đã mượn"
         }`;
         this.allBorrowedBooks = [];
       } finally {
@@ -410,7 +410,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể cập nhật trạng thái");
+          throw new Error(errorData.detail || "Không thể cập nhật trạng thái");
         }
 
         this.snackbar = {
@@ -422,7 +422,7 @@ export default {
         console.error("Error updating status:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể cập nhật trạng thái"}`,
+          text: `Lỗi: ${error.detail || "Không thể cập nhật trạng thái"}`,
           color: "error",
         };
       }

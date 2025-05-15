@@ -281,7 +281,7 @@ export default {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Không thể tạo sách mới");
+          throw new Error(data.detail || "Không thể tạo sách mới");
         }
 
         // Hiển thị thông báo thành công
@@ -298,7 +298,7 @@ export default {
 
         // Hiển thị thông báo lỗi
         this.snackbar.color = "error";
-        this.snackbar.text = error.message || "Đã xảy ra lỗi khi tạo sách mới";
+        this.snackbar.text = error.detail || "Đã xảy ra lỗi khi tạo sách mới";
         this.snackbar.show = true;
       } finally {
         this.loading = false;

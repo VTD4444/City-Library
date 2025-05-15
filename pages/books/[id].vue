@@ -10,10 +10,6 @@
         ></v-progress-circular>
       </v-row>
 
-      <v-alert v-if="error" type="error" class="mt-4" closable>{{
-        error
-      }}</v-alert>
-
       <!-- Nội dung chi tiết sách -->
       <template v-if="book && !loading">
         <v-row class="mt-6">
@@ -198,7 +194,7 @@ export default {
     return {
       book: null,
       loading: true,
-      error: null,
+      error: "",
       bookId: null,
       snackbar: {
         show: false,
@@ -209,12 +205,20 @@ export default {
         show: false,
         loading: false,
       },
+      isInCart: false, // Biến kiểm tra sách đã có trong giỏ chưa
     };
   },
   mounted() {
     // Lấy ID sách từ tham số URL
     this.bookId = this.$route.params.id;
     this.fetchBookDetails();
+
+    // Lắng nghe sự kiện storage để cập nhật khi localStorage thay đổi từ tab khác
+    window.addEventListener('storage', this.handleStorageChange);
+  },
+  beforeUnmount() {
+    // Xóa event listener khi component bị hủy
+    window.removeEventListener('storage', this.handleStorageChange);
   },
   methods: {
     async fetchBookDetails() {
@@ -235,9 +239,12 @@ export default {
 
         const data = await response.json();
         this.book = data;
+
+        // Kiểm tra sách hiện tại đã có trong giỏ chưa
+        this.checkIfBookInCart();
       } catch (error) {
         console.error("Error fetching book details:", error);
-        this.error = error.message || "Có lỗi xảy ra khi tải thông tin sách";
+        this.error = error.detail || "Có lỗi xảy ra khi tải thông tin sách";
       } finally {
         this.loading = false;
       }
@@ -317,36 +324,30 @@ export default {
 
         // Handle API response
         if (!response.ok) {
-          // Extract error message from different response formats
-          let errorMessage = "Không thể tạo phiếu mượn, vui lòng thử lại sau.";
 
           if (data.detail) {
             // Handle specific error format with 'detail' field
-            errorMessage = data.detail;
-          } else if (data.message) {
-            // Handle error format with 'message' field
-            errorMessage = data.message;
+            this.error = data.detail;
           }
 
-          throw new Error(errorMessage);
+          throw new Error(this.error);
         }
 
         this.confirmDialog.show = false;
 
-        // Show success message
+        // Show success detail
         this.snackbar.color = "success";
         this.snackbar.text =
           "Tạo phiếu mượn thành công! Thủ thư sẽ xác nhận phiếu của bạn.";
         this.snackbar.show = true;
       } catch (error) {
-        console.error("Error borrowing book:", error);
 
         // Close dialog
         this.confirmDialog.show = false;
 
         // Show error in snackbar
         this.snackbar.color = "error";
-        this.snackbar.text = error.message || "Đã xảy ra lỗi khi mượn sách";
+        this.snackbar.text = this.error || "Đã xảy ra lỗi khi mượn sách";
         this.snackbar.show = true;
       } finally {
         this.confirmDialog.loading = false;
@@ -354,53 +355,51 @@ export default {
     },
 
     addToCart() {
-      // Kiểm tra đăng nhập
-      const isLoggedIn = !!localStorage.getItem("userLogin");
-      if (!isLoggedIn) {
-        this.snackbar.color = "error";
-        this.snackbar.text = "Vui lòng đăng nhập để thêm sách vào giỏ";
-        this.snackbar.show = true;
-
-        setTimeout(() => {
-          this.$router.push("/login");
-        }, 1000);
+      // Luôn lấy giỏ hàng mới nhất từ localStorage
+      const currentCart = JSON.parse(localStorage.getItem("cart") || "[]");
+      
+      // Kiểm tra xem sách đã tồn tại chưa
+      const bookExists = currentCart.some(item => item.MaSach === this.book.MaSach);
+      
+      if (bookExists) {
+        this.snackbar = {
+          show: true,
+          text: "Sách này đã có trong giỏ",
+          color: "warning",
+        };
         return;
       }
-
-      // Lấy giỏ hàng từ localStorage
-      let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-      // Kiểm tra sách đã có trong giỏ chưa
-      const existingBookIndex = cart.findIndex(
-        (item) => item.MaSach === this.book.MaSach
-      );
-
-      if (existingBookIndex >= 0) {
-        // Sách đã có trong giỏ
-        this.snackbar.color = "info";
-        this.snackbar.text = "Sách này đã có trong giỏ của bạn";
-        this.snackbar.show = true;
-        return;
-      }
-
-      // Thêm sách vào giỏ hàng (mặc định số lượng = 1)
-      cart.push({
+      
+      // Thêm sách vào giỏ
+      currentCart.push({
         MaSach: this.book.MaSach,
         TieuDe: this.book.TieuDe,
-        TacGia: this.book.TacGia,
-        TheLoai: this.book.TheLoai,
         AnhMinhHoaURL: this.book.AnhMinhHoaURL,
-        quantity: 1, // Mỗi loại sách chỉ được mượn 1 cuốn
       });
-
-      // Cập nhật giỏ hàng vào localStorage
-      localStorage.setItem("cart", JSON.stringify(cart));
-
-      // Thông báo thành công
-      this.snackbar.color = "success";
-      this.snackbar.text = "Đã thêm sách vào giỏ";
-      this.snackbar.show = true;
+      
+      // Lưu vào localStorage
+      localStorage.setItem("cart", JSON.stringify(currentCart));
+      
+      this.snackbar = {
+        show: true,
+        text: "Đã thêm sách vào giỏ",
+        color: "success",
+      };
     },
+
+    // Xử lý khi localStorage thay đổi
+    handleStorageChange(event) {
+      if (event.key === 'cart') {
+        // Cập nhật lại biến kiểm tra sách đã trong giỏ chưa (nếu có)
+        this.checkIfBookInCart();
+      }
+    },
+    
+    // Kiểm tra sách hiện tại đã có trong giỏ chưa
+    checkIfBookInCart() {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+      this.isInCart = cart.some(item => item.MaSach === this.book.MaSach);
+    }
   },
 };
 </script>

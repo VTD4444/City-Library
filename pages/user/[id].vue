@@ -343,7 +343,8 @@ export default {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || "Không thể cập nhật thông tin");
+          this.error = data.detail || "Không thể cập nhật thông tin";
+          throw new Error(data.detail || "Không thể cập nhật thông tin");
         }
 
         // Cập nhật thông tin user trong localStorage
@@ -367,7 +368,7 @@ export default {
       } catch (error) {
         console.error("Lỗi khi cập nhật thông tin:", error);
         this.snackbar.text =
-          error.message || "Có lỗi xảy ra khi cập nhật thông tin";
+          this.error || "Có lỗi xảy ra khi cập nhật thông tin";
         this.snackbar.color = "error";
         this.snackbar.show = true;
       } finally {

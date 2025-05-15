@@ -220,7 +220,7 @@ export default {
         console.log("Loan history response:", data);
 
         if (!response.ok) {
-          throw new Error(data.message || "Không thể tải lịch sử mượn sách");
+          throw new Error(data.detail || "Không thể tải lịch sử mượn sách");
         }
 
         // Kiểm tra xem data có phải là một mảng không
@@ -235,7 +235,7 @@ export default {
       } catch (error) {
         console.error("Error fetching loan history:", error);
         this.snackbar.text =
-          "Không thể tải lịch sử mượn sách: " + error.message;
+          "Không thể tải lịch sử mượn sách: " + error.detail;
         this.snackbar.color = "error";
         this.snackbar.show = true;
         this.loanHistory = [];

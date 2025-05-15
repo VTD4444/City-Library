@@ -240,14 +240,14 @@ export default {
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải thông tin bạn đọc");
+          throw new Error(errorData.detail || "Không thể tải thông tin bạn đọc");
         }
         
         const data = await response.json();
         this.reader = data;
       } catch (error) {
         console.error("Error fetching reader details:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải thông tin bạn đọc"}`;
+        this.error = `Lỗi: ${error.detail || "Không thể tải thông tin bạn đọc"}`;
       } finally {
         this.loading = false;
       }
@@ -297,7 +297,7 @@ export default {
           throw new Error(errorMsg);
         }
         
-        // Show success message
+        // Show success detail
         this.snackbar = {
           show: true,
           text: `Đã xóa bạn đọc "${this.reader.HoTen}" thành công`,
@@ -316,7 +316,7 @@ export default {
         console.error("Error deleting reader:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể xóa bạn đọc"}`,
+          text: `Lỗi: ${error.detail || "Không thể xóa bạn đọc"}`,
           color: "error"
         };
         this.deleteDialog.show = false;

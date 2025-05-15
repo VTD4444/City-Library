@@ -363,14 +363,14 @@ export default {
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải danh sách sách");
+          throw new Error(errorData.detail || "Không thể tải danh sách sách");
         }
         
         const data = await response.json();
         this.allBooks = Array.isArray(data.books) ? data.books : (Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching books:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải danh sách sách"}`;
+        this.error = `Lỗi: ${error.detail || "Không thể tải danh sách sách"}`;
         this.allBooks = [];
       } finally {
         this.loading = false;
@@ -414,7 +414,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể lưu thông tin sách");
+          throw new Error(errorData.detail || "Không thể lưu thông tin sách");
         }
 
         // Success handling
@@ -435,7 +435,7 @@ export default {
         console.error("Error saving book:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể lưu thông tin sách"}`,
+          text: `Lỗi: ${error.detail || "Không thể lưu thông tin sách"}`,
           color: "error"
         };
       }
@@ -481,7 +481,7 @@ export default {
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Không thể xóa sách');
+          throw new Error(errorData.detail || 'Không thể xóa sách');
         }
         
         // Show success message
@@ -502,7 +502,7 @@ export default {
         console.error('Error deleting book:', error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || 'Không thể xóa sách'}`,
+          text: `Lỗi: ${error.detail || 'Không thể xóa sách'}`,
           color: 'error'
         };
       } finally {

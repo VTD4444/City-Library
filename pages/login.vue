@@ -155,7 +155,7 @@ export default {
                         }, 500);
                     } else {
                         // Hiển thị lỗi
-                        this.showError('Đăng nhập thất bại: ' + (result.message || 'Tên đăng nhập hoặc mật khẩu không đúng'));
+                        this.showError('Đăng nhập thất bại: ' + (result.detail || 'Tên đăng nhập hoặc mật khẩu không đúng'));
                     }
                 } catch (error) {
                     console.error('Lỗi đăng nhập:', error);

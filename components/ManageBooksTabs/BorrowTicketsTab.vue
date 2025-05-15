@@ -400,7 +400,7 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.message || "Không thể tải danh sách phiếu mượn"
+            errorData.detail || "Không thể tải danh sách phiếu mượn"
           );
         }
 
@@ -409,7 +409,7 @@ export default {
       } catch (error) {
         console.error("Error fetching borrow tickets:", error);
         this.error = `Lỗi: ${
-          error.message || "Không thể tải danh sách phiếu mượn"
+          error.detail || "Không thể tải danh sách phiếu mượn"
         }`;
         this.allBorrowTickets = [];
       } finally {
@@ -486,7 +486,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể cập nhật trạng thái");
+          throw new Error(errorData.detail || "Không thể cập nhật trạng thái");
         }
 
         this.snackbar = {
@@ -498,7 +498,7 @@ export default {
         console.error("Error updating status:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể cập nhật trạng thái"}`,
+          text: `Lỗi: ${error.detail || "Không thể cập nhật trạng thái"}`,
           color: "error",
         };
       }
@@ -559,7 +559,7 @@ export default {
         console.error("Error confirming borrow ticket:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể xác nhận phiếu mượn"}`,
+          text: `Lỗi: ${error.detail || "Không thể xác nhận phiếu mượn"}`,
           color: "error",
         };
       } finally {
@@ -592,10 +592,10 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể xóa phiếu mượn");
+          throw new Error(errorData.detail || "Không thể xóa phiếu mượn");
         }
 
-        // Show success message
+        // Show success detail
         this.snackbar = {
           show: true,
           text: "Phiếu mượn đã được xóa thành công",
@@ -612,7 +612,7 @@ export default {
         console.error("Error deleting ticket:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể xóa phiếu mượn"}`,
+          text: `Lỗi: ${error.detail || "Không thể xóa phiếu mượn"}`,
           color: "error",
         };
       } finally {

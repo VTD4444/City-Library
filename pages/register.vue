@@ -295,14 +295,13 @@ export default {
 
           // Xử lý response
           const result = await response.json();
-          console.log('Kết quả đăng ký:', result);
 
           if (response.ok) {
             // Hiển thị dialog thông báo thành công thay vì snackbar
             this.successDialog = true;
           } else {
             // Xử lý lỗi từ server
-            this.snackbarText = result.message || 'Đăng ký thất bại!';
+            this.snackbarText = result.detail || 'Đăng ký thất bại!';
             this.snackbarColor = 'error';
             this.snackbar = true;
           }

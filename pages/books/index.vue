@@ -249,7 +249,7 @@ export default {
         // this.totalPages = data.pages || Math.ceil(this.totalBooks / 12);
       } catch (error) {
         console.error("Error fetching books:", error);
-        this.error = error.message || "Đã xảy ra lỗi khi tải danh sách sách";
+        this.error = error.detail || "Đã xảy ra lỗi khi tải danh sách sách";
       } finally {
         this.loading = false;
       }

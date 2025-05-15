@@ -55,6 +55,18 @@
                 Xem
               </v-btn>
             </template>
+
+            <!-- Cột xóa sách -->
+            <template v-slot:item.remove="{ item, index }">
+              <v-btn
+                variant="text"
+                color="error"
+                size="small"
+                @click="removeSelectedItem(index, item)"
+              >
+                <v-icon size="16">mdi-delete</v-icon>
+              </v-btn>
+            </template>
           </v-data-table>
         </v-card>
 
@@ -162,8 +174,18 @@ export default {
           align: "center",
           width: "100px",
         },
+        {
+          title: "",
+          key: "remove",
+          sortable: false,
+          align: "center",
+          width: "80px",
+        },
       ],
       showClearCartDialog: false,
+      showRemoveItemDialog: false,
+      itemIndexToRemove: -1,
+      itemToRemove: null,
       snackbar: {
         show: false,
         text: "",
@@ -201,11 +223,23 @@ export default {
       this.selectedItems = this.cartItems.map((_, index) => index);
     },
 
-    removeItem(index) {
-      // Xóa sách khỏi giỏ hàng
-      this.cartItems.splice(index, 1);
-      this.saveCart();
+    removeSelectedItem(index) {
+      this.itemIndexToRemove = index;
+      this.itemToRemove = this.cartItems[index];
+      if (this.itemIndexToRemove >= 0) {
+        this.removeItem(this.itemIndexToRemove);
+        this.itemIndexToRemove = -1;
+        this.itemToRemove = null;
+      }
+    },
 
+    removeItem(index) {
+      // Xóa sách khỏi mảng cartItems
+      this.cartItems.splice(index, 1);
+      
+      // Cập nhật localStorage ngay lập tức
+      this.saveCart();
+      
       // Cập nhật danh sách đã chọn
       this.selectedItems = this.selectedItems
         .filter((itemIndex) => itemIndex < index)
@@ -215,6 +249,7 @@ export default {
             .map((itemIndex) => itemIndex - 1)
         );
 
+      // Thông báo thành công
       this.snackbar.text = "Đã xóa sách khỏi giỏ hàng";
       this.snackbar.color = "success";
       this.snackbar.show = true;
@@ -300,9 +335,9 @@ export default {
           if (data.detail) {
             // Format with 'detail' field (shown in the error)
             errorMessage = data.detail;
-          } else if (data.message) {
+          } else if (data.detail) {
             // Format with 'message' field
-            errorMessage = data.message;
+            errorMessage = data.detail;
           }
           
           throw new Error(errorMessage);
@@ -350,7 +385,7 @@ export default {
         this.selectedItems = this.cartItems.map((_, index) => index);
 
         // Hiển thị thông báo thành công
-        this.snackbar.text = data.message || "Mượn sách thành công!";
+        this.snackbar.text = data.detail || "Mượn sách thành công!";
         this.snackbar.color = "success";
         this.snackbar.show = true;
 
@@ -362,7 +397,7 @@ export default {
         console.error("Error creating loan:", error);
 
         // Hiển thị thông báo lỗi
-        this.snackbar.text = error.message || "Đã xảy ra lỗi khi mượn sách";
+        this.snackbar.text = error.detail || "Đã xảy ra lỗi khi mượn sách";
         this.snackbar.color = "error";
         this.snackbar.show = true;
       }

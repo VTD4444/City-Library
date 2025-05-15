@@ -195,7 +195,7 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.message || "Không thể tải danh sách tác giả"
+            errorData.detail || "Không thể tải danh sách tác giả"
           );
         }
 
@@ -204,7 +204,7 @@ export default {
       } catch (error) {
         console.error("Error fetching authors:", error);
         this.error = `Lỗi: ${
-          error.message || "Không thể tải danh sách tác giả"
+          error.detail || "Không thể tải danh sách tác giả"
         }`;
         this.allAuthors = [];
       } finally {

@@ -327,7 +327,7 @@ export default {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Không thể tải thông tin sách");
+          throw new Error(errorData.detail || "Không thể tải thông tin sách");
         }
 
         const data = await response.json();
@@ -335,7 +335,7 @@ export default {
         this.originalBook = { ...data }; // Store original data for cancel functionality
       } catch (error) {
         console.error("Error fetching book details:", error);
-        this.error = `Lỗi: ${error.message || "Không thể tải thông tin sách"}`;
+        this.error = `Lỗi: ${error.detail || "Không thể tải thông tin sách"}`;
       } finally {
         this.loading = false;
       }
@@ -391,7 +391,7 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.message || "Không thể cập nhật thông tin sách"
+            errorData.detail || "Không thể cập nhật thông tin sách"
           );
         }
 
@@ -433,7 +433,7 @@ export default {
         console.error("Error updating book:", error);
         this.snackbar = {
           show: true,
-          text: `Lỗi: ${error.message || "Không thể cập nhật thông tin sách"}`,
+          text: `Lỗi: ${error.detail || "Không thể cập nhật thông tin sách"}`,
           color: "error",
         };
       } finally {

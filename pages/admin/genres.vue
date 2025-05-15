@@ -195,7 +195,7 @@ export default {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.message || "Không thể tải danh sách thể loại"
+            errorData.detail || "Không thể tải danh sách thể loại"
           );
         }
 
@@ -204,7 +204,7 @@ export default {
       } catch (error) {
         console.error("Error fetching genres:", error);
         this.error = `Lỗi: ${
-          error.message || "Không thể tải danh sách thể loại"
+          error.detail || "Không thể tải danh sách thể loại"
         }`;
         this.allGenres = [];
       } finally {

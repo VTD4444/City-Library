@@ -222,7 +222,7 @@ export default {
       } catch (error) {
         console.error("Error fetching ticket details:", error);
         this.error = `Lỗi: ${
-          error.message || "Không thể tải thông tin phiếu mượn"
+          error.detail || "Không thể tải thông tin phiếu mượn"
         }`;
       } finally {
         this.loading = false;
