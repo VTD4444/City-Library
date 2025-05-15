@@ -6,7 +6,7 @@
         <div
           class="d-flex justify-space-between align-center py-2 mx-md-10 mx-2"
         >
-          <div class="d-flex align-center">
+          <router-link to="/admin" class="d-flex align-center text-decoration-none">
             <img
               src="@/assets/images/logo.png"
               alt="Logo"
@@ -14,8 +14,10 @@
               width="40"
               class="mr-2"
             />
-            <span class="text-h4 text-md-h4 text-sm-h5">City Library</span>
-          </div>
+            <span class="text-h4 text-md-h4 text-sm-h5 text-black"
+              >City Library</span
+            >
+          </router-link>
 
           <!-- Phần đăng nhập hoặc chào người dùng -->
           <div class="mx-2">

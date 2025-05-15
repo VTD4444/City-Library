@@ -6,7 +6,7 @@
         <div
           class="d-flex justify-space-between align-center py-2 mx-md-10 mx-2"
         >
-          <div class="d-flex align-center">
+          <router-link to="/" class="d-flex align-center text-decoration-none">
             <img
               src="@/assets/images/logo.png"
               alt="Logo"
@@ -14,8 +14,10 @@
               width="40"
               class="mr-2"
             />
-            <span class="text-h4 text-md-h4 text-sm-h5">City Library</span>
-          </div>
+            <span class="text-h4 text-md-h4 text-sm-h5 text-black"
+              >City Library</span
+            >
+          </router-link>
 
           <!-- Phần đăng nhập/đăng ký hoặc chào người dùng -->
           <div class="mx-2">
@@ -126,11 +128,17 @@
                 </v-btn>
               </template>
 
-              <v-card min-width="350" max-width="350" class="notification-panel">
+              <v-card
+                min-width="350"
+                max-width="350"
+                class="notification-panel"
+              >
                 <v-card-title
                   class="d-flex justify-space-between align-center py-3 px-4"
                 >
-                  <span class="text-subtitle-1 font-weight-bold">Thông báo</span>
+                  <span class="text-subtitle-1 font-weight-bold"
+                    >Thông báo</span
+                  >
                   <v-btn
                     v-if="notifications.length > 0"
                     size="small"
@@ -148,14 +156,14 @@
                   class="notification-list"
                   :style="{ 'max-height': '400px', 'overflow-y': 'auto' }"
                 >
-                  <div
-                    v-if="loading"
-                    class="pa-4 text-center"
-                  >
-                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  <div v-if="loading" class="pa-4 text-center">
+                    <v-progress-circular
+                      indeterminate
+                      color="primary"
+                    ></v-progress-circular>
                     <div class="mt-2">Đang tải thông báo...</div>
                   </div>
-                  
+
                   <div
                     v-else-if="notifications.length === 0"
                     class="pa-4 text-center grey--text"
@@ -172,14 +180,19 @@
                         v-for="notification in notifications"
                         :key="notification.MaThongBao"
                         :class="{
-                          'unread-notification': notification.TrangThai === 'ChuaDoc',
+                          'unread-notification':
+                            notification.TrangThai === 'ChuaDoc',
                         }"
                         @click="viewNotification(notification)"
                       >
                         <v-list-item-title class="text-subtitle-2">
                           <v-icon
                             size="small"
-                            :color="getNotificationIconColor(notification.LoaiThongBao)"
+                            :color="
+                              getNotificationIconColor(
+                                notification.LoaiThongBao
+                              )
+                            "
                             class="mr-1"
                           >
                             {{ getNotificationIcon(notification.LoaiThongBao) }}
@@ -191,7 +204,9 @@
                           {{ notification.NoiDung }}
                         </v-list-item-subtitle>
 
-                        <v-list-item-subtitle class="text-caption mt-1 text-grey">
+                        <v-list-item-subtitle
+                          class="text-caption mt-1 text-grey"
+                        >
                           {{ formatDate(notification.NgayTao) }}
                         </v-list-item-subtitle>
                       </v-list-item>
@@ -275,14 +290,14 @@
               class="notification-list"
               :style="{ 'max-height': '400px', 'overflow-y': 'auto' }"
             >
-              <div
-                v-if="loading"
-                class="pa-4 text-center"
-              >
-                <v-progress-circular indeterminate color="primary"></v-progress-circular>
+              <div v-if="loading" class="pa-4 text-center">
+                <v-progress-circular
+                  indeterminate
+                  color="primary"
+                ></v-progress-circular>
                 <div class="mt-2">Đang tải thông báo...</div>
               </div>
-              
+
               <div
                 v-else-if="notifications.length === 0"
                 class="pa-4 text-center grey--text"
@@ -299,14 +314,17 @@
                     v-for="notification in notifications"
                     :key="notification.MaThongBao"
                     :class="{
-                      'unread-notification': notification.TrangThai === 'ChuaDoc',
+                      'unread-notification':
+                        notification.TrangThai === 'ChuaDoc',
                     }"
                     @click="viewNotification(notification)"
                   >
                     <v-list-item-title class="text-subtitle-2">
                       <v-icon
                         size="small"
-                        :color="getNotificationIconColor(notification.LoaiThongBao)"
+                        :color="
+                          getNotificationIconColor(notification.LoaiThongBao)
+                        "
                         class="mr-1"
                       >
                         {{ getNotificationIcon(notification.LoaiThongBao) }}
@@ -343,8 +361,8 @@
       </v-app-bar>
 
       <!-- Add a placeholder for the navigation drawer -->
-      <v-navigation-drawer 
-        v-model="drawer" 
+      <v-navigation-drawer
+        v-model="drawer"
         temporary
         :width="280"
         location="start"
@@ -361,9 +379,9 @@
           />
           <span class="text-h6">City Library</span>
         </div>
-        
+
         <v-divider></v-divider>
-        
+
         <v-list density="comfortable" nav class="drawer-list px-2">
           <v-list-item to="/" exact color="green-darken-1">
             <template v-slot:prepend>
@@ -409,7 +427,9 @@
 
             <v-list-item to="/user/borrow-tickets" color="green-darken-1">
               <template v-slot:prepend>
-                <v-icon color="green-darken-1">mdi-book-open-page-variant</v-icon>
+                <v-icon color="green-darken-1"
+                  >mdi-book-open-page-variant</v-icon
+                >
               </template>
               <v-list-item-title>Lịch sử mượn sách</v-list-item-title>
             </v-list-item>
@@ -433,14 +453,30 @@
         <v-card-title class="d-flex align-center pa-4">
           <v-icon
             size="24"
-            :color="getNotificationIconColor(notificationDetailsDialog.notification.LoaiThongBao)"
+            :color="
+              getNotificationIconColor(
+                notificationDetailsDialog.notification.LoaiThongBao
+              )
+            "
             class="mr-3"
           >
-            {{ getNotificationIcon(notificationDetailsDialog.notification.LoaiThongBao) }}
+            {{
+              getNotificationIcon(
+                notificationDetailsDialog.notification.LoaiThongBao
+              )
+            }}
           </v-icon>
-          <span>{{ getNotificationTitle(notificationDetailsDialog.notification.LoaiThongBao) }}</span>
+          <span>{{
+            getNotificationTitle(
+              notificationDetailsDialog.notification.LoaiThongBao
+            )
+          }}</span>
           <v-spacer></v-spacer>
-          <v-btn icon elevation="0" @click="notificationDetailsDialog.show = false">
+          <v-btn
+            icon
+            elevation="0"
+            @click="notificationDetailsDialog.show = false"
+          >
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-card-title>
@@ -448,8 +484,10 @@
         <v-divider></v-divider>
 
         <v-card-text class="pa-4">
-          <p class="text-body-1 mb-4">{{ notificationDetailsDialog.notification.NoiDung }}</p>
-          
+          <p class="text-body-1 mb-4">
+            {{ notificationDetailsDialog.notification.NoiDung }}
+          </p>
+
           <div class="d-flex align-center text-caption text-grey">
             <v-icon size="small" class="mr-1">mdi-clock-outline</v-icon>
             {{ formatDate(notificationDetailsDialog.notification.NgayTao) }}
@@ -460,9 +498,12 @@
 
         <v-card-actions class="pa-4">
           <v-spacer></v-spacer>
-          <v-btn 
-            v-if="notificationDetailsDialog.notification.LoaiThongBao === 'PHIEU_TAO_THANH_CONG' && 
-                  notificationDetailsDialog.notification.MaPhieuMuon"
+          <v-btn
+            v-if="
+              notificationDetailsDialog.notification.LoaiThongBao ===
+                'PHIEU_TAO_THANH_CONG' &&
+              notificationDetailsDialog.notification.MaPhieuMuon
+            "
             color="primary"
             @click="navigateFromDetails"
           >
@@ -486,13 +527,13 @@ export default {
       notificationInterval: null,
       notificationPollingTime: 30000, // 30 seconds refresh interval
       refreshing: false,
-      
+
       // Add notification details dialog data
       notificationDetailsDialog: {
         show: false,
         notification: null,
       },
-      
+
       // Your existing data properties
       drawer: false,
       TenDangNhap: "",
@@ -565,7 +606,7 @@ export default {
 
     async refreshNotifications() {
       if (this.refreshing || !this.isAuthenticated) return;
-      
+
       this.refreshing = true;
       try {
         await this.loadNotifications();
@@ -576,33 +617,38 @@ export default {
 
     async loadNotifications(silent = false) {
       if (!this.isAuthenticated || !this.MaDocGia) return;
-      
+
       if (!silent) this.loading = true;
       try {
-        const response = await fetch(`https://26.193.242.15:8080/thongbao/${this.MaDocGia}`);
+        const response = await fetch(
+          `https://26.193.242.15:8080/thongbao/${this.MaDocGia}`
+        );
         if (!response.ok) {
           throw new Error(`API error! Status: ${response.status}`);
         }
-        
+
         const newNotifications = await response.json();
-        
+
         // Check if there are any new notifications to highlight
         if (this.notifications.length > 0) {
-          const existingIds = new Set(this.notifications.map(n => n.MaThongBao));
-          const hasNewNotifications = newNotifications.some(n => !existingIds.has(n.MaThongBao));
-          
+          const existingIds = new Set(
+            this.notifications.map((n) => n.MaThongBao)
+          );
+          const hasNewNotifications = newNotifications.some(
+            (n) => !existingIds.has(n.MaThongBao)
+          );
+
           if (hasNewNotifications) {
             this.showNewNotificationAlert();
           }
         }
-        
+
         this.notifications = newNotifications;
-        
+
         // Đếm số lượng thông báo chưa đọc
         this.unreadNotificationsCount = this.notifications.filter(
           (item) => item.TrangThai === "ChuaDoc"
         ).length;
-        
       } catch (error) {
         console.error("Error loading notifications:", error);
         if (!silent) {
@@ -618,21 +664,26 @@ export default {
       if (notification.TrangThai === "ChuaDoc") {
         try {
           // Existing code to mark as read...
-          const response = await fetch(`https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json'
+          const response = await fetch(
+            `https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`,
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+              },
             }
-          });
-          
+          );
+
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+            throw new Error(
+              errorData.message || `HTTP error! Status: ${response.status}`
+            );
           }
-          
+
           // Update notification status locally
           notification.TrangThai = "DaDoc";
-          
+
           // Update unread count
           this.unreadNotificationsCount = this.notifications.filter(
             (item) => item.TrangThai === "ChuaDoc"
@@ -645,7 +696,7 @@ export default {
       // Set the notification for detail view
       this.notificationDetailsDialog.notification = notification;
       this.notificationDetailsDialog.show = true;
-      
+
       // Close notification dropdown menus
       this.showDesktopNotifications = false;
       this.showMobileNotifications = false;
@@ -653,31 +704,36 @@ export default {
 
     async markAllAsRead() {
       if (this.notifications.length === 0 || !this.MaDocGia) return;
-      
-      const unreadNotifications = this.notifications.filter(n => n.TrangThai === "ChuaDoc");
+
+      const unreadNotifications = this.notifications.filter(
+        (n) => n.TrangThai === "ChuaDoc"
+      );
       if (unreadNotifications.length === 0) return;
-      
+
       try {
         // Gọi API để đánh dấu tất cả thông báo là đã đọc
-        const promises = unreadNotifications.map(notification => 
-          fetch(`https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json'
+        const promises = unreadNotifications.map((notification) =>
+          fetch(
+            `https://26.193.242.15:8080/thongbao/xacnhan/${notification.MaThongBao}`,
+            {
+              method: "GET",
+              headers: {
+                Accept: "application/json",
+              },
             }
-          })
+          )
         );
-        
+
         await Promise.all(promises);
-        
+
         // Cập nhật trạng thái trong mảng hiện tại
-        this.notifications.forEach(notification => {
+        this.notifications.forEach((notification) => {
           notification.TrangThai = "DaDoc";
         });
-        
+
         // Cập nhật số lượng thông báo chưa đọc
         this.unreadNotificationsCount = 0;
-        
+
         // Có thể thêm thông báo thành công nếu cần thiết
       } catch (error) {
         console.error("Error marking all notifications as read:", error);
@@ -762,24 +818,24 @@ export default {
     startNotificationPolling() {
       // Clear any existing interval first
       this.stopNotificationPolling();
-      
+
       // Set up a new interval
       this.notificationInterval = setInterval(() => {
         this.loadNotifications(true); // true = silent loading
       }, this.notificationPollingTime);
     },
-    
+
     stopNotificationPolling() {
       if (this.notificationInterval) {
         clearInterval(this.notificationInterval);
         this.notificationInterval = null;
       }
     },
-    
+
     showNewNotificationAlert() {
       // You could play a sound, show a toast, or other indicator
       console.log("New notifications available!");
-      
+
       // If you want to use a sound:
       // const notificationSound = new Audio('/notification-sound.mp3');
       // notificationSound.play();
@@ -787,8 +843,11 @@ export default {
 
     navigateFromDetails() {
       const notification = this.notificationDetailsDialog.notification;
-      if (notification && notification.LoaiThongBao === "PHIEU_TAO_THANH_CONG" && 
-          notification.MaPhieuMuon) {
+      if (
+        notification &&
+        notification.LoaiThongBao === "PHIEU_TAO_THANH_CONG" &&
+        notification.MaPhieuMuon
+      ) {
         this.$router.push(`/user/borrow-tickets/${notification.MaPhieuMuon}`);
         this.notificationDetailsDialog.show = false;
       }
@@ -832,7 +891,7 @@ export default {
       if (newVal && this.isAuthenticated) {
         this.loadNotifications();
       }
-    }
+    },
   },
 };
 </script>
@@ -934,11 +993,11 @@ export default {
     transform: translateX(0) !important;
     padding-top: env(safe-area-inset-top, 0);
   }
-  
+
   .v-navigation-drawer :deep(.v-list) {
     padding-top: 0;
   }
-  
+
   /* Adjust for devices with notches */
   .drawer-content {
     padding-top: calc(56px + env(safe-area-inset-top, 0px));

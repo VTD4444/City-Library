@@ -48,7 +48,7 @@
                   </div>
 
                   <div class="ticket-info-row mb-3">
-                    <strong class="info-label">Mã thẻ thư viện:</strong>
+                    <strong class="info-label">Mã bạn đọc:</strong>
                     <span>{{ ticket.MaDocGia || "Chưa có thông tin" }}</span>
                   </div>
 
@@ -73,14 +73,21 @@
                 Danh sách sách mượn
 
                 <!-- Update the Return Button to check ticket status -->
-                <v-btn
-                  color="green-darken-1"
-                  :disabled="selectedItems.length === 0 || ticket.TrangThaiPhieu === 'ChoXacNhan'"
-                  @click="paid"
-                  prepend-icon="mdi-check-circle"
-                >
-                  Đã trả
-                </v-btn>
+                <v-tooltip location="top">
+                  <template v-slot:activator="{ props }">
+                    <div v-bind="props">
+                      <v-btn
+                        color="green-darken-1"
+                        :disabled="selectedItems.length === 0 || ticket.TrangThaiPhieu === 'ChoXacNhan'"
+                        @click="paid"
+                        prepend-icon="mdi-check-circle"
+                      >
+                        Đã trả
+                      </v-btn>
+                    </div>
+                  </template>
+                  <span>Chỉ có thể đánh dấu trả sách nếu sách đang có trạng thái "Đang mượn"</span>
+                </v-tooltip>
               </v-card-title>
 
               <v-data-table
@@ -91,6 +98,7 @@
                 show-select
                 hide-default-footer
                 item-value="MaChiTiet"
+                :item-selectable="({ TrangThaiSach }) => TrangThaiSach === 'DangMuon'"
               >
                 <!-- STT Column -->
                 <template v-slot:item.stt="{ index }">
@@ -113,6 +121,7 @@
                     size="small"
                     :color="getStatusChipColor(item.TrangThaiSach)"
                     :text-color="getStatusChipTextColor(item.TrangThaiSach)"
+                    :class="{ 'non-returnable': item.TrangThaiSach !== 'DangMuon' }"
                   >
                     {{ formatStatus(item.TrangThaiSach) }}
                   </v-chip>
@@ -493,11 +502,18 @@ export default {
       this.returnDialog.loading = true;
       
       try {
-        console.log("Selected items for return:", this.selectedBooks);
-        // Prepare request body with the format shown in the screenshot
+        // Filter to only include books with DangMuon status
+        const eligibleBooks = this.selectedBooks.filter(book => book.TrangThaiSach === 'DangMuon');
+        
+        // Check if there are any eligible books
+        if (eligibleBooks.length === 0) {
+          throw new Error("Không có sách nào đang mượn được chọn");
+        }
+        
+        // Prepare request body with only eligible books
         const requestBody = {
           MaPhieuMuon: this.ticketId,
-          danhsachcapnhap: this.selectedBooks.map(book => ({
+          danhsachcapnhap: eligibleBooks.map(book => ({
             MaChiTiet: book.MaChiTiet,
             TrangThaiSachMuon: "DaTra"
           }))
@@ -525,25 +541,22 @@ export default {
         // Success handling
         this.snackbar = {
           show: true,
-          text: `Đã cập nhật trạng thái ${this.selectedItems.length} quyển sách thành công`,
+          text: `Đã cập nhật trạng thái ${eligibleBooks.length} quyển sách thành công`,
           color: "success"
         };
         
         // Update local data to reflect changes
-        this.selectedItems.forEach(maChiTiet => {
-          const book = this.borrowedBooks.find(b => b.MaChiTiet === maChiTiet);
-          if (book) {
-            book.TrangThaiSach = "DaTra";
+        eligibleBooks.forEach(book => {
+          const bookIndex = this.borrowedBooks.findIndex(b => b.MaChiTiet === book.MaChiTiet);
+          if (bookIndex !== -1) {
+            this.borrowedBooks[bookIndex].TrangThaiSach = "DaTra";
           }
         });
         
         // Clear selection
         this.selectedItems = [];
         
-        // Close dialog
-        this.returnDialog.show = false;
-        
-        // Optionally refresh data from server
+        // Optional: Refresh data
         // await this.fetchTicketDetails();
         
       } catch (error) {
@@ -556,7 +569,12 @@ export default {
       } finally {
         this.returnDialog.loading = false;
       }
-    }
+    },
+
+    // Add to methods section
+    canReturnBook(book) {
+      return book.TrangThaiSach === 'DangMuon';
+    },
   },
 };
 </script>
@@ -615,5 +633,16 @@ export default {
 /* Add styles for status chips */
 .v-data-table :deep(.v-chip--size-small) {
   font-size: 12px;
+}
+
+/* Add this to visually indicate books that can't be returned */
+.non-returnable {
+  opacity: 0.7;
+}
+
+/* Add this style to disable pointer events on non-returnable checkboxes */
+.v-data-table :deep(tr.non-returnable .v-selection-control) {
+  pointer-events: none;
+  opacity: 0.6;
 }
 </style>

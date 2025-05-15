@@ -123,15 +123,15 @@
         </v-row>
 
         <!-- Sách liên quan -->
-        <v-row class="mt-8">
+        <!-- <v-row class="mt-8">
           <v-col cols="12">
             <h2 class="text-h5 mb-4 font-weight-bold">Sách cùng thể loại</h2>
             <v-alert v-if="true" type="info" variant="tonal" class="mb-0">
               Đang tải danh sách sách liên quan...
             </v-alert>
-            <!-- Danh sách sách cùng thể loại sẽ hiển thị ở đây -->
+            Danh sách sách cùng thể loại sẽ hiển thị ở đây
           </v-col>
-        </v-row>
+        </v-row> -->
       </template>
     </v-container>
 

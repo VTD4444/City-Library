@@ -44,7 +44,7 @@
 
                   <div class="ticket-info-row mb-3">
                     <strong class="info-label">Tên bạn đọc:</strong>
-                    <span>{{ ticket.TenDocGia }}</span>
+                    <span>{{ ticket.TenBanDoc }}</span>
                   </div>
 
                   <div class="ticket-info-row mb-3">
@@ -197,7 +197,7 @@ export default {
         // Set ticket data
         this.ticket = {
           MaPhieuMuon: data.MaPhieuMuon,
-          TenDocGia: data.TenDocGia,
+          TenBanDoc: data.TenBanDoc,
           MaDocGia: data.MaDocGia,
           NgayYeuCau: data.NgayYeuCau,
           NgayPhaiTra: data.NgayPhaiTra,
