@@ -73,21 +73,14 @@
                 Danh sách sách mượn
 
                 <!-- Update the Return Button to check ticket status -->
-                <v-tooltip location="top">
-                  <template v-slot:activator="{ props }">
-                    <div v-bind="props">
-                      <v-btn
-                        color="green-darken-1"
-                        :disabled="selectedItems.length === 0 || ticket.TrangThaiPhieu === 'ChoXacNhan'"
-                        @click="paid"
-                        prepend-icon="mdi-check-circle"
-                      >
-                        Đã trả
-                      </v-btn>
-                    </div>
-                  </template>
-                  <span>Chỉ có thể đánh dấu trả sách nếu sách đang có trạng thái "Đang mượn"</span>
-                </v-tooltip>
+                <v-btn
+                  color="green-darken-1"
+                  :disabled="selectedItems.length === 0 || ticket.TrangThaiPhieu === 'ChoXacNhan'"
+                  @click="paid"
+                  prepend-icon="mdi-check-circle"
+                >
+                  Đã trả
+                </v-btn>
               </v-card-title>
 
               <v-data-table
@@ -98,7 +91,7 @@
                 show-select
                 hide-default-footer
                 item-value="MaChiTiet"
-                :item-selectable="({ TrangThaiSach }) => TrangThaiSach === 'DangMuon'"
+                :item-selectable="({ TrangThaiSach }) => TrangThaiSach === 'DangMuon' || TrangThaiSach === 'QuaHan'"
               >
                 <!-- STT Column -->
                 <template v-slot:item.stt="{ index }">
@@ -374,9 +367,7 @@ export default {
         case 'DaTra':
           return 'blue';
         case 'QuaHan':
-          return 'red-lighten-5';
-        default:
-          return 'blue-lighten-5';
+          return 'red';
       }
     },
 
@@ -389,9 +380,7 @@ export default {
         case 'DaTra':
           return 'white';
         case 'QuaHan':
-          return 'red-darken-4';
-        default:
-          return 'grey';
+          return 'red-darken-5';
       }
     },
 
@@ -503,7 +492,7 @@ export default {
       
       try {
         // Filter to only include books with DangMuon status
-        const eligibleBooks = this.selectedBooks.filter(book => book.TrangThaiSach === 'DangMuon');
+        const eligibleBooks = this.selectedBooks.filter(book => book.TrangThaiSach === 'DangMuon' || book.TrangThaiSach === 'QuaHan');
         
         // Check if there are any eligible books
         if (eligibleBooks.length === 0) {
@@ -569,11 +558,6 @@ export default {
       } finally {
         this.returnDialog.loading = false;
       }
-    },
-
-    // Add to methods section
-    canReturnBook(book) {
-      return book.TrangThaiSach === 'DangMuon';
     },
   },
 };
