@@ -47,18 +47,17 @@
                 >
               </div>
 
-              <v-card-text v-if="isEditMode">
-                <v-file-input
-                  v-model="imageFile"
-                  accept="image/*"
-                  prepend-icon=""
-                  prepend-inner-icon="mdi-camera"
-                  label="Tải ảnh lên"
-                  hide-details
+              <v-card-text>
+                <v-text-field
+                  v-if="isEditMode"
+                  v-model="book.AnhMinhHoaURL"
+                  label="URL hình ảnh"
                   variant="outlined"
+                  hint="Nhập đường dẫn đến hình ảnh bìa sách"
+                  placeholder="https://example.com/book-cover.jpg"
                   density="compact"
-                  @change="previewImage"
-                ></v-file-input>
+                  @input="updateImageFromURL"
+                ></v-text-field>
               </v-card-text>
             </v-card>
           </v-col>
@@ -162,7 +161,7 @@
 
                   <div class="detail-item">
                     <v-text-field
-                      v-model="book.SoLuongHienCo"
+                      v-model="book.SoLuongTong"
                       label="Số lượng *"
                       variant="outlined"
                       density="comfortable"
@@ -288,6 +287,7 @@ export default {
         SoLuongHienCo: null,
         SoLuotDaMuon: null,
         HinhAnh: "",
+        AnhMinhHoaURL: "", // Thêm trường này
       },
       originalBook: {}, // To revert changes when cancel edit
       isEditMode: false,
@@ -332,7 +332,9 @@ export default {
 
         const data = await response.json();
         this.book = { ...data };
-        this.originalBook = { ...data }; // Store original data for cancel functionality
+        // Thêm dòng này để đồng bộ URL hình ảnh
+        this.book.AnhMinhHoaURL = data.HinhAnh || data.AnhMinhHoaURL || "";
+        this.originalBook = { ...this.book }; // Store original data for cancel functionality
       } catch (error) {
         console.error("Error fetching book details:", error);
         this.error = `Lỗi: ${error.detail || "Không thể tải thông tin sách"}`;
@@ -341,13 +343,23 @@ export default {
       }
     },
 
+    updateImageFromURL() {
+      if (this.book.AnhMinhHoaURL) {
+        this.imagePreview = this.book.AnhMinhHoaURL;
+        // Xóa file đã chọn trước đó nếu có
+        this.imageFile = null;
+      }
+    },
+
     previewImage(file) {
       if (!file) {
-        this.imagePreview = null;
+        this.imagePreview = this.book.AnhMinhHoaURL || null;
         return;
       }
 
       this.imagePreview = URL.createObjectURL(file);
+      // Khi chọn file, xóa URL hiện tại
+      this.book.AnhMinhHoaURL = "";
     },
 
     cancelEdit() {
@@ -362,6 +374,9 @@ export default {
 
       this.loading = true;
       try {
+        // Sử dụng AnhMinhHoaURL nếu có, hoặc URL hiện tại nếu không có file mới
+        const imageUrl = this.book.AnhMinhHoaURL;
+        
         // Sử dụng JSON thay vì FormData
         const bookData = {
           TieuDe: this.book.TieuDe || "",
@@ -371,7 +386,7 @@ export default {
           NamXuatBan: this.book.NamXuatBan || 0,
           SoTrang: this.book.SoTrang || 0,
           MoTa: this.book.MoTa || "",
-          AnhMinhHoaURL: this.book.HinhAnh || "",
+          AnhMinhHoaURL: imageUrl,
           SoLuongTong: this.book.SoLuongTong || 0,
         };
 
@@ -395,28 +410,11 @@ export default {
           );
         }
 
-        // Nếu cần upload hình ảnh riêng
-        if (this.imageFile) {
-          const imageData = new FormData();
-          imageData.append("file", this.imageFile);
-
-          const imageResponse = await fetch(
-            `https://26.193.242.15:8080/books/${this.bookId}/upload-image`,
-            {
-              method: "POST",
-              body: imageData,
-            }
-          );
-
-          if (!imageResponse.ok) {
-            console.error("Failed to upload image");
-          }
-        }
-
         // Update original book data
         const updatedData = await response.json();
         this.book = { ...updatedData };
         this.originalBook = { ...updatedData };
+        this.fetchBookDetails(); // Refresh book details
 
         // Reset edit mode
         this.isEditMode = false;
